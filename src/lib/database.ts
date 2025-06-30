@@ -1,27 +1,35 @@
-import { AuthToken } from '@/models/auth-token';
+// Database interface - maybe mongo, postgresql or dynamo db.
+export interface Database {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  isConnected(): boolean;
+}
 
-// This is a placeholder database helper for the template
-// In a real implementation, you would replace this with your preferred database
-// (PostgreSQL, MySQL, MongoDB, etc.)
+// Dummy database implementation
+export class DummyDatabase implements Database {
+  private connected = false;
 
-export const ensureDBConnect = async (req: any, res: any, next: () => any) => {
-  // No database connection needed for JSON-based storage
-  return next();
+  async connect(): Promise<void> {
+    console.log('Dummy database connected');
+    this.connected = true;
+  }
+
+  async disconnect(): Promise<void> {
+    console.log('Dummy database disconnected');
+    this.connected = false;
+  }
+
+  isConnected(): boolean {
+    return this.connected;
+  }
+}
+
+// Database instance
+export const DB = new DummyDatabase();
+
+// Database connection helper
+export const ensureDBConnect = async () => {
+  if (!DB.isConnected()) {
+    await DB.connect();
+  }
 };
-
-export class DB {
-  // Placeholder for database connection
-  // Replace this with your actual database implementation
-  static connection: any = null;
-  static AuthTokenModel: any = null;
-
-  static async connect() {
-    // No database connection needed for JSON-based storage
-    console.log('Using JSON-based storage (no database connection required)');
-  }
-
-  static async createCollections() {
-    // No collections needed for JSON-based storage
-    console.log('Using JSON-based storage (no collections required)');
-  }
-} 

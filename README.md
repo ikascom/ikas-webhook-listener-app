@@ -1,235 +1,294 @@
-# Ikas Webhook Listener Template
+# İkas Webhook Listener Template
 
-This project is a template for developing webhook listener applications for the Ikas platform.
+Modern Next.js 15 App Router kullanarak geliştirilmiş İkas webhook listener template uygulaması.
 
-## Features
+## 🚀 Özellikler
 
-- Modern React app with Next.js 15 (Pages Router)
-- TypeScript support
-- OAuth integration (Ikas API)
-- JSON-based data storage (default)
-- Webhook listener structure
-- Optional Redis cache support
-- JWT token management
-- Flexible database support
-- Ikas API integration (getMerchant, etc.)
-- Frontend-Backend API bridge structure
+- **Modern Next.js 15**: App Router yapısı ile geliştirilmiş
+- **TypeScript**: Tam TypeScript desteği
+- **Tailwind CSS**: Modern ve responsive tasarım
+- **İkas OAuth**: Mağaza yetkilendirme sistemi
+- **Webhook Handling**: İkas webhook'larını dinleme ve işleme
+- **Admin API Client**: İkas admin API client kütüphanesi kullanımı
+- **Frontend-Backend Bridge**: API requests ile frontend-backend bağlantısı
+- **Session Management**: Modern session yönetimi
+- **Dummy Data Support**: Geliştirme için dummy data desteği
 
-## Getting Started
-
-1. Clone the project:
-```bash
-git clone <repository-url>
-cd ikas-webhook-listener-template
-```
-
-2. Install dependencies:
-```bash
-pnpm install
-```
-
-3. Set up environment variables:
-```bash
-cp env.example .env.local
-```
-
-4. Start the development server:
-```bash
-pnpm dev
-```
-
-## Environment Variables
-
-Define the following environment variables in your `.env.local` file:
-
-```env
-# Ikas OAuth
-NEXT_PUBLIC_OAUTH_URL=https://api.ikas.com/oauth
-NEXT_PUBLIC_CLIENT_ID=your_client_id
-CLIENT_SECRET=your_client_secret
-NEXT_PUBLIC_DEPLOY_URL=http://localhost:3000
-NEXT_PUBLIC_STORE_DOMAIN=https://api.ikas.com
-
-# Redis (Optional)
-REDIS_URL=redis://localhost:6379
-
-# Cookie
-SECRET_COOKIE_PASSWORD=your_cookie_secret
-
-# Storage
-DATA_PATH=./data
-```
-
-## Data Storage
-
-This template uses JSON files for data storage by default. This provides:
-
-- **Quick start**: No database setup required
-- **Flexibility**: You can use any database you want
-- **Simplicity**: Ideal for development and testing
-
-### Changing the Database
-
-If you want to use your own database:
-
-1. Edit `src/models/auth-token/manager.ts`
-2. Update `src/lib/database.ts`
-3. Add the necessary database dependencies
-
-#### PostgreSQL Example:
-```bash
-pnpm add pg @types/pg
-```
-
-#### MySQL Example:
-```bash
-pnpm add mysql2 @types/mysql
-```
-
-#### MongoDB Example:
-```bash
-pnpm add mongoose @typegoose/typegoose
-```
-
-## Project Structure
+## 📁 Proje Yapısı
 
 ```
-src/
-├── pages/                   # Next.js Pages Router
-│   ├── api/                # API routes
-│   │   ├── oauth/          # OAuth endpoints
-│   │   ├── ikas/           # İkas API endpoints
-│   │   │   └── get-merchant/  # Get merchant info
-│   │   └── webhooks/       # Webhook endpoints
-│   ├── dashboard/          # Dashboard pages
-│   ├── _app.tsx            # App wrapper
-│   ├── _document.tsx       # Document wrapper
-│   └── index.tsx           # Home page
-├── components/             # React components
-├── globals/                # Global configurations
-├── lib/                    # Utility libraries
-│   ├── api-requests.ts     # Frontend-Backend API bridge
-│   └── ikas-client.ts      # İkas API client
-├── models/                 # Data models
-└── types/                  # TypeScript types
-data/                       # JSON data files (auto-created)
-└── auth-tokens.json        # Auth tokens storage
+ikas-webhook-listener-app/
+├── app/                    # Next.js App Router
+│   ├── api/               # API Routes
+│   │   ├── auth/          # Authentication endpoints
+│   │   ├── ikas/          # İkas API endpoints
+│   │   ├── oauth/         # OAuth endpoints
+│   │   └── webhook/       # Webhook endpoints
+│   ├── dashboard/         # Dashboard sayfası
+│   ├── authorize-store/   # Mağaza yetkilendirme
+│   ├── callback/          # OAuth callback
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Ana sayfa
+│   └── globals.css        # Global stiller
+├── lib/                   # Backend utilities
+│   ├── api-requests/      # Frontend-backend API bridge
+│   ├── auth/              # Authentication management
+│   ├── database/          # Database connection (dummy)
+│   ├── session/           # Session management
+│   └── config.ts          # Uygulama konfigürasyonu
+├── types/                 # TypeScript type definitions
+│   ├── api/               # API types
+│   └── models/            # Data model types
+├── utils/                 # Utility functions
+├── components/            # React component'leri
+└── public/                # Statik dosyalar
 ```
 
-## API Structure
+## 🛠️ Kurulum
 
-### Frontend-Backend Bridge
+1. **Bağımlılıkları yükleyin:**
+   ```bash
+   pnpm install
+   ```
 
-`src/lib/api-requests.ts` dosyası frontend ve backend arasındaki API çağrılarını yönetir:
+2. **Environment dosyasını oluşturun:**
+   ```bash
+   cp env.example .env.local
+   ```
+
+3. **Environment değişkenlerini düzenleyin:**
+   - `IKAS_CLIENT_ID`: İkas uygulama client ID'si
+   - `IKAS_CLIENT_SECRET`: İkas uygulama client secret'ı
+   - `IKAS_REDIRECT_URI`: OAuth callback URL'i
+   - `SESSION_SECRET`: Session güvenlik anahtarı
+
+4. **Geliştirme sunucusunu başlatın:**
+   ```bash
+   pnpm dev
+   ```
+
+## 🔧 Kullanım
+
+### OAuth Yetkilendirme
+
+1. `/authorize-store` sayfasına gidin
+2. Mağaza bilgilerini girin
+3. İkas OAuth akışını tamamlayın
+4. Başarılı yetkilendirme sonrası dashboard'a yönlendirilirsiniz
+
+### Webhook Endpoint
+
+Webhook endpoint'i `/api/webhook/ikas` adresinde bulunur ve şu event'leri destekler:
+
+- `order.created`: Sipariş oluşturuldu
+- `order.updated`: Sipariş güncellendi
+
+### Dashboard
+
+Dashboard sayfasında şu özellikler bulunur:
+
+- Webhook ayarları yönetimi
+- Webhook logları görüntüleme
+- Uygulama konfigürasyonu
+- İstatistikler
+
+## 🏗️ Backend Yapısı
+
+### API Requests (Frontend-Backend Bridge)
+
+`lib/api-requests/index.ts` dosyası frontend ve backend arasındaki API çağrılarını yönetir:
 
 ```typescript
 import { ApiRequests } from '@/lib/api-requests';
 
 // Merchant bilgilerini al
 const response = await ApiRequests.ikas.getMerchant(token);
-const merchantInfo = response.data.data.merchantInfo;
+const merchantInfo = response.data?.merchantInfo;
+
+// Webhook loglarını al
+const logsResponse = await ApiRequests.webhook.getLogs(token);
+const logs = logsResponse.data?.logs;
 ```
 
-### İkas API Endpoints
+### Session Management
 
-- `GET /api/ikas/get-merchant` - Mağaza bilgilerini al
-- `GET /api/oauth/authorize/ikas` - OAuth authorization
-- `GET /api/oauth/callback/ikas` - OAuth callback
-- `GET /api/oauth/check-for-reauthorize` - Reauthorization check
-- `POST /api/oauth/get-token-with-signature` - Token with signature
-
-### Webhook Endpoints
-
-- `POST /api/webhooks/order-created` - Order created webhook
-- `POST /api/webhooks/order-updated` - Order updated webhook
-
-## İkas API Usage
-
-### 1. Token Alma
-
-Önce OAuth ile token alın:
+Modern session yönetimi `lib/session/session-manager.ts` dosyasında:
 
 ```typescript
-// OAuth callback'ten sonra token alınır
-const token = "your_jwt_token";
+import { sessionManager } from '@/lib/session/session-manager';
+
+// Session oluştur
+const sessionId = await sessionManager.setSession(request, sessionData);
+
+// Session al
+const session = await sessionManager.getSession(request);
 ```
 
-### 2. Merchant Bilgilerini Alma
+### Token Management
+
+Auth token yönetimi `lib/auth/token-manager.ts` dosyasında:
 
 ```typescript
-import { ApiRequests } from '@/lib/api-requests';
+import { authTokenManager } from '@/lib/auth/token-manager';
 
-try {
-  const response = await ApiRequests.ikas.getMerchant(token);
-  if (response.status === 200) {
-    const merchantInfo = response.data.data.merchantInfo;
-    console.log('Mağaza adı:', merchantInfo.storeName);
-    console.log('Mağaza ID:', merchantInfo.id);
+// Token oluştur
+const token = await authTokenManager.createToken(tokenData);
+
+// Token al
+const token = await authTokenManager.getTokenByMerchantId(merchantId);
+```
+
+### Database Interface
+
+Gelecekte MongoDB veya PostgreSQL ile değiştirilecek database interface:
+
+```typescript
+import { DB, ensureDBConnect } from '@/lib/database';
+
+// Database bağlantısını sağla
+await ensureDBConnect();
+```
+
+## 🏗️ Geliştirme
+
+### Yeni API Route Ekleme
+
+```typescript
+// app/api/example/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { sessionManager } from '@/lib/session/session-manager';
+
+export async function GET(request: NextRequest) {
+  const session = await sessionManager.getSession(request);
+  
+  if (!session) {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
-} catch (error) {
-  console.error('API hatası:', error);
+
+  return NextResponse.json({ message: 'Hello World' });
 }
 ```
 
-### 3. Yeni API Endpoint Ekleme
+### Yeni API Request Ekleme
 
-Yeni bir İkas API endpoint'i eklemek için:
-
-1. **API Route oluşturun** (`src/pages/api/ikas/your-endpoint/index.ts`):
 ```typescript
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { createRouter } from 'next-connect';
-import { AuthTokenManager } from '@/models/auth-token/manager';
-import { getIkas } from '@/lib/ikas-client';
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // API logic here
-}
-```
-
-2. **API request fonksiyonu ekleyin** (`src/lib/api-requests.ts`):
-```typescript
+// lib/api-requests/index.ts
 export const ApiRequests = {
-  ikas: {
-    getMerchant: (token: string) => makeGetRequest<{ data: GetMerchantApiResponse }>({
-      url: '/api/ikas/get-merchant',
-      token
-    }),
-    yourEndpoint: (token: string) => makeGetRequest<{ data: YourResponseType }>({
-      url: '/api/ikas/your-endpoint',
-      token
-    }),
+  example: {
+    getData: (token: string) => 
+      makeGetRequest<ExampleResponse>({ 
+        url: '/api/example', 
+        token 
+      }),
   },
 };
 ```
 
-## Test Pages
+### Yeni Sayfa Ekleme
 
-- `/test-api` - API test sayfası
-- `/dashboard` - Dashboard ana sayfası
-- `/authorize-store` - OAuth authorization sayfası
-- `/callback` - OAuth callback sayfası
+```typescript
+// app/example/page.tsx
+'use client';
 
-## Development
+import { ApiRequests } from '@/lib/api-requests';
 
-You can develop your own Ikas application using this template:
+export default function ExamplePage() {
+  const [data, setData] = useState(null);
 
-1. Update the project name and description
-2. Set up your OAuth client ID and secret
-3. Customize the webhook endpoints as needed
-4. Develop the dashboard pages
-5. Optionally change your database
-6. Add new Ikas API endpoints
+  useEffect(() => {
+    const loadData = async () => {
+      const response = await ApiRequests.example.getData('token');
+      setData(response.data);
+    };
+    loadData();
+  }, []);
 
-## Data Backup
-
-If you're using JSON-based storage, make sure to backup the `data/` folder regularly:
-
-```bash
-# Veri yedekleme örneği
-cp -r data/ backup/data-$(date +%Y%m%d)
+  return (
+    <div>
+      <h1>Example Page</h1>
+    </div>
+  );
+}
 ```
 
-## License
+## 🔄 Database Geçişi
 
-MIT
+Şu anda dummy data kullanılıyor. Gerçek database'e geçmek için:
+
+### MongoDB Geçişi
+
+```bash
+pnpm add mongoose @types/mongoose
+```
+
+```typescript
+// lib/database/mongodb.ts
+import mongoose from 'mongoose';
+
+export class MongoDBDatabase implements Database {
+  async connect(): Promise<void> {
+    await mongoose.connect(process.env.MONGODB_URI!);
+  }
+}
+```
+
+### PostgreSQL Geçişi
+
+```bash
+pnpm add pg @types/pg
+```
+
+```typescript
+// lib/database/postgresql.ts
+import { Pool } from 'pg';
+
+export class PostgreSQLDatabase implements Database {
+  private pool: Pool;
+
+  constructor() {
+    this.pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+  }
+}
+```
+
+## 📦 Build ve Deploy
+
+### Production Build
+
+```bash
+pnpm build
+```
+
+### Production Sunucu
+
+```bash
+pnpm start
+```
+
+### Vercel Deploy
+
+Bu proje Vercel'e deploy edilmeye hazırdır. Sadece environment değişkenlerini Vercel dashboard'ında ayarlayın.
+
+## 🔗 Bağımlılıklar
+
+- **Next.js 15**: React framework
+- **React 19**: UI library
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Styling
+- **@ikas/admin-api-client**: İkas admin API client
+- **@ikas/app-helpers**: İkas app helper'ları
+- **@ikas/components**: İkas UI component'leri
+
+## 📝 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+## 🤝 Katkıda Bulunma
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit yapın (`git commit -m 'Add amazing feature'`)
+4. Push yapın (`git push origin feature/amazing-feature`)
+5. Pull Request oluşturun

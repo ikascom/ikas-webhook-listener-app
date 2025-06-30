@@ -7,7 +7,7 @@ export class AuthTokenManager {
   }
 
   static put(token: AuthToken): AuthToken {
-    const existingToken = this.get(token.authorizedAppId);
+    const existingToken = this.get(token.authorizedAppId!);
     if (existingToken) {
       return existingToken;
     } else {

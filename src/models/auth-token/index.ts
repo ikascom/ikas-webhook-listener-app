@@ -1,22 +1,24 @@
-import { BaseAuthToken } from '@/globals/types';
 
 export interface AuthToken {
+  id: string;
   _id: string;
   merchantId: string;
-  authorizedAppId: string;
-  salesChannelId?: string | null;
-  accessToken: string;
-  expireDate: string;
-  expiresIn: number;
-  refreshToken: string;
-  scope: string;
-  tokenType: string;
-  deleted?: boolean;
+  authorizedAppId?: string;
+  salesChannelId: string | null;
+  type?: string;
   createdAt?: string;
   updatedAt?: string;
+  deleted?: boolean;
+
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  expireDate: string;
+  refreshToken: string;
+  scope?: string;
 }
 
-export function getToken(token: AuthToken): BaseAuthToken {
+export function getToken(token: AuthToken): AuthToken {
   return {
     accessToken: token.accessToken,
     authorizedAppId: token.authorizedAppId,
