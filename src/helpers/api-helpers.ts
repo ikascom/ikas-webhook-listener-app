@@ -9,11 +9,12 @@ export function getIkas(token: AuthToken): ikasAdminGraphQLAPIClient<AuthToken> 
     graphApiUrl: 'https://api.myikas.dev/api/v2/admin/graphql',
     accessToken: token.accessToken,
     tokenData: token,
+    onCheckToken: () => onCheckToken(token),
   });
   return client;
 }
 
-export async function onCheckToken(DB: any, token?: AuthToken): Promise<{ accessToken: string | undefined; tokenData?: AuthToken }> {
+export async function onCheckToken(token?: AuthToken): Promise<{ accessToken: string | undefined; tokenData?: AuthToken }> {
   try {
     if (token) {
       const now = new Date();
