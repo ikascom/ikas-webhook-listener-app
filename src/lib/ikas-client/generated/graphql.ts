@@ -1,5 +1,9 @@
 import { BaseGraphQLAPIClient, BaseGraphQLAPIClientOptions, APIResult } from '@ikas/admin-api-client';
 
+export enum MerchantSettingsAddressTypeEnum {
+  CORPORATE = "CORPORATE",
+  INDIVIDUAL = "INDIVIDUAL"
+}
 export enum SalesChannelTypeEnum {
   ADMIN = "ADMIN",
   APP = "APP",
@@ -9,20 +13,6 @@ export enum SalesChannelTypeEnum {
   POS = "POS",
   STOREFRONT = "STOREFRONT",
   STOREFRONT_APP = "STOREFRONT_APP"
-}
-export enum SourceTypeEnum {
-  CUSTOMER = "CUSTOMER",
-  CUSTOMER_SUBSCRIPTION_PLAN = "CUSTOMER_SUBSCRIPTION_PLAN",
-  CUSTOMER_SUBSCRIPTION_PLAN_ORDER = "CUSTOMER_SUBSCRIPTION_PLAN_ORDER",
-  EMAIL = "EMAIL",
-  GIFT_CARD = "GIFT_CARD",
-  INVENTORY = "INVENTORY",
-  MERCHANT = "MERCHANT",
-  ORDER = "ORDER",
-  PARTNER = "PARTNER",
-  PRODUCT = "PRODUCT",
-  STAFF = "STAFF",
-  STOREFRONT = "STOREFRONT"
 }
 export enum StockLocationDeliveryTimeEnum {
   TWO_IN_FOUR_DAYS = "TWO_IN_FOUR_DAYS",
@@ -35,6 +25,69 @@ export enum StockLocationDeliveryTimeEnum {
 export enum StockLocationTypeEnum {
   PHYSICAL = "PHYSICAL",
   VIRTUAL = "VIRTUAL"
+}
+export interface AuthorizedApp {
+  addedDate: number;
+  createdAt?: number;
+  deleted: boolean;
+  id: string;
+  partnerId: string;
+  salesChannelId?: string;
+  scope: string;
+  storeAppId: string;
+  supportsMultipleInstallation?: boolean;
+  updatedAt?: number;
+}
+export interface MerchantAddress {
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: MerchantAddressCity;
+  company?: string;
+  country?: MerchantAddressCountry;
+  district?: MerchantAddressDistrict;
+  firstName?: string;
+  identityNumber?: string;
+  lastName?: string;
+  postalCode?: string;
+  state?: MerchantAddressState;
+  taxNumber?: string;
+  taxOffice?: string;
+  title?: string;
+  type?: MerchantSettingsAddressTypeEnum;
+  vkn?: string;
+}
+export interface MerchantAddressCity {
+  code?: string;
+  id?: string;
+  name?: string;
+}
+export interface MerchantAddressCountry {
+  code?: string;
+  id?: string;
+  iso2?: string;
+  iso3?: string;
+  name?: string;
+}
+export interface MerchantAddressDistrict {
+  code?: string;
+  id?: string;
+  name?: string;
+}
+export interface MerchantAddressState {
+  code?: string;
+  id?: string;
+  name?: string;
+}
+export interface MerchantResponse {
+  address?: MerchantAddress;
+  email: string;
+  firstName: string;
+  id: string;
+  lastName: string;
+  merchantName?: string;
+  merchantSequence?: number;
+  phoneNumber?: string;
+  storeName?: string;
 }
 export interface SalesChannel {
   createdAt?: number;
@@ -104,10 +157,9 @@ export interface StockLocationTranslation {
   description?: string;
   locale: string;
 }
-export interface TimelineInput {
+export interface PublicTimelineInput {
   message: string;
   sourceId: string;
-  sourceType: SourceTypeEnum;
 }
 
 export interface ListSalesChannelQueryVariables {}
@@ -125,10 +177,25 @@ export interface ListStockLocationQuery {
 }>;
 }
 export interface AddCustomTimelineEntryMutationVariables {
-  input: TimelineInput;
+  input: PublicTimelineInput;
 }
 export interface AddCustomTimelineEntryMutation {
   addCustomTimelineEntry: boolean;
+}
+export interface GetMerchantQueryVariables {}
+export interface GetMerchantQuery {
+  getMerchant: {
+  id: string;
+  email: string;
+  storeName?: string;
+};
+}
+export interface GetAuthorizedAppQueryVariables {}
+export interface GetAuthorizedAppQuery {
+  getAuthorizedApp?: {
+  id: string;
+  salesChannelId?: string;
+};
 }
 
 export class GeneratedQuery {
@@ -162,6 +229,31 @@ export class GeneratedQuery {
     return this.client.query<Partial<ListStockLocationQuery>>({ query });
   }
 
+  async getMerchant(): Promise<APIResult<Partial<GetMerchantQuery>>> {
+    const query = `
+  query getMerchant {
+    getMerchant {
+      id
+      email
+      storeName
+    }
+  }
+`;
+    return this.client.query<Partial<GetMerchantQuery>>({ query });
+  }
+
+  async getAuthorizedApp(): Promise<APIResult<Partial<GetAuthorizedAppQuery>>> {
+    const query = `
+  query getAuthorizedApp {
+    getAuthorizedApp {
+      id
+      salesChannelId
+    }
+  }
+`;
+    return this.client.query<Partial<GetAuthorizedAppQuery>>({ query });
+  }
+
 }
 
 export class GeneratedMutation {
@@ -173,7 +265,7 @@ export class GeneratedMutation {
 
   async addCustomTimelineEntry(variables: AddCustomTimelineEntryMutationVariables): Promise<APIResult<Partial<AddCustomTimelineEntryMutation>>> {
     const mutation = `
-  mutation addCustomTimelineEntry($input: TimelineInput!) {
+  mutation addCustomTimelineEntry($input: PublicTimelineInput!) {
     addCustomTimelineEntry(input: $input)
   }
 `;

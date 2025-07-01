@@ -1,4 +1,4 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 export const LIST_SALES_CHANNEL = gql`
   query listSalesChannel {
@@ -19,7 +19,27 @@ export const LIST_STOCK_LOCATIONS = gql`
 `;
 
 export const ADD_CUSTOM_TIMELINE_ENTRY = gql`
-  mutation addCustomTimelineEntry($input: TimelineInput!) {
+  mutation addCustomTimelineEntry($input: PublicTimelineInput!) {
     addCustomTimelineEntry(input: $input)
+  }
+`;
+
+export const GET_MERCHANT = gql`
+  query getMerchant {
+    getMerchant {
+      id
+      email
+      storeName
+    }
+  }
+`;
+
+
+export const GET_AUTHORIZED_APP = gql`
+  query getAuthorizedApp {
+    getAuthorizedApp {
+      id
+      salesChannelId
+    }
   }
 `;

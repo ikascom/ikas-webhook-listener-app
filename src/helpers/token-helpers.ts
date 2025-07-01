@@ -1,4 +1,4 @@
-import { AuthConnectParams } from '@ikas/api-client';
+import { AuthConnectParams } from '@ikas/admin-api-client';
 import { AppBridgeHelper } from '@ikas/app-helpers';
 import { NextRouter } from 'next/router';
 import { ApiRequests } from '../lib/api-requests';

@@ -3,7 +3,7 @@ import { preset } from '@ikas/admin-api-client';
 
 const config: CodegenConfig = {
   schema: {
-    'https://api.myikas.com/api/v1/admin/graphql': {
+    'https://api.myikas.com/api/v2/admin/graphql': {
       headers: {
         'Content-Type': 'application/json',
       },

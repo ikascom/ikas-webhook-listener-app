@@ -1,7 +1,5 @@
 import axios from 'axios';
-import { GetMerchantApiResponse } from '@/pages/api/ikas/get-merchant';
-import { ApiResponseType } from '../globals/types';
-import { CheckForReauthorizeApiResponse } from '../pages/api/oauth/check-for-reauthorize';
+import { ApiResponseType } from '../globals/constants';
 
 export async function makePostRequest<T>({ url, data, token }: { url: string; data?: any; token?: string }) {
   return axios.post<ApiResponseType<T>>(url, data, {

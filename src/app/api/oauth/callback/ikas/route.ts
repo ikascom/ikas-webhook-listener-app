@@ -1,18 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/globals/config';
 import { getSessionFromRequest, setSessionInResponse } from '@/lib/session';
-import { authTokenManager } from '@/lib/auth/token-manager';
+import { callbackSchema, validateRequest } from '@/lib/validation';
+import { OAuthAPI } from '@ikas/admin-api-client';
+import moment from 'moment';
+import { NextRequest, NextResponse } from 'next/server';
+import { getIkas } from '../../../../../helpers/api-helpers';
+import { JwtHelpers } from '../../../../../helpers/jwt-helpers';
+import { AuthToken } from '../../../../../models/auth-token';
+import { AuthTokenManager } from '../../../../../models/auth-token/manager';
 
 export async function GET(request: NextRequest) {
   try {
-    // URL parametrelerini al
     const { searchParams } = new URL(request.url);
-    const code = searchParams.get('code');
-    const state = searchParams.get('state');
 
-    if (!code) {
-      return NextResponse.json({ error: 'Authorization code is required' }, { status: 400 });
+    // Validate request parameters
+    const validation = validateRequest(callbackSchema, {
+      code: searchParams.get('code'),
+      state: searchParams.get('state'),
+    });
+
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
+
+    const { code, state } = validation.data;
 
     // Session'dan state'i kontrol et
     const session = await getSessionFromRequest(request);
@@ -20,36 +31,85 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid state parameter' }, { status: 400 });
     }
 
-    // İkas OAuth callback işlemi
-    // Gerçek implementasyonda CallbackApi fonksiyonu kullanılacak
-    // Şimdilik dummy token oluşturuyoruz
-    
-    const dummyMerchantId = `merchant_${Date.now()}`;
-    const dummyAccessToken = `access_token_${Date.now()}`;
-    const dummyRefreshToken = `refresh_token_${Date.now()}`;
-    
-    // Token'ı database'e kaydet
-    await authTokenManager.createToken({
-      merchantId: dummyMerchantId,
-      accessToken: dummyAccessToken,
-      refreshToken: dummyRefreshToken,
-      expiresIn: 3600, // 1 saat
-    });
+    const responseAuthorizationCode = await OAuthAPI.getTokenWithAuthorizationCode(
+      {
+        code: code as string,
+        client_id: config.oauth.clientId!,
+        client_secret: config.oauth.clientSecret!,
+        redirect_uri: config.oauth.redirectUri,
+      },
+      {
+        storeName: (session.storeName || 'api') as string,
+        storeDomain: config.storeDomain as string,
+      },
+    );
 
-    // Session'ı güncelle
-    session.merchantId = dummyMerchantId;
-    session.accessToken = dummyAccessToken;
-    session.refreshToken = dummyRefreshToken;
-    session.expiresAt = new Date(Date.now() + 3600 * 1000);
-    delete session.state; // State'i temizle
-    
-    // Response oluştur ve session'ı set et
-    const response = NextResponse.redirect(new URL('/dashboard', request.url));
-    await setSessionInResponse(response, session);
+    if (!responseAuthorizationCode.data) {
+      let tokenTemp = {
+        accessToken: responseAuthorizationCode.data!.access_token,
+        refreshToken: responseAuthorizationCode.data!.refresh_token,
+        tokenType: responseAuthorizationCode.data!.token_type,
+        expiresIn: responseAuthorizationCode.data!.expires_in,
+        expireDate: '',
+        scope: responseAuthorizationCode.data!.scope,
+        salesChannelId: null,
+      };
 
-    return response;
+      const ikas = getIkas(tokenTemp as AuthToken);
+      const merchantResponse = await ikas.queries.getMerchant();
+
+      const getAuthorizedAppResponse = await ikas.queries.getAuthorizedApp();
+      console.log('callback--> Merchant', JSON.stringify(merchantResponse.data));
+      console.log('callback--> AuthorizedAppId', JSON.stringify(getAuthorizedAppResponse.data));
+      let token: AuthToken;
+      if (merchantResponse.isSuccess && merchantResponse.data && getAuthorizedAppResponse.isSuccess && getAuthorizedAppResponse.data) {
+        const expireDate = moment().add(responseAuthorizationCode.data!.expires_in, 'seconds').toDate().toISOString();
+        const authorizedAppId = getAuthorizedAppResponse.data.getAuthorizedApp?.id!;
+        const merchantId = merchantResponse.data.getMerchant?.id!;
+
+        token = {
+          ...tokenTemp,
+          id: authorizedAppId,
+          _id: authorizedAppId,
+          expireDate: expireDate,
+          merchantId: merchantId,
+          salesChannelId: getAuthorizedAppResponse.data?.getAuthorizedApp?.salesChannelId || null,
+        };
+        await AuthTokenManager.put(token);
+
+        // update session
+        session.expiresAt = new Date(Date.now() + 3600 * 1000);
+        session.merchantId = merchantId;
+        session.authorizedAppId = authorizedAppId;
+        delete session.state; // clear state
+
+        // create response and set session
+        const response = NextResponse.redirect(new URL('/dashboard', request.url));
+        await setSessionInResponse(response, session);
+
+        const jwtToken = JwtHelpers.createToken(
+          merchantResponse.data.getMerchant?.storeName!,
+          merchantResponse.data.getMerchant?.id!,
+          authorizedAppId,
+        );
+        const redirectUrl = `${config.adminUrl!.replace(
+          '{storeName}',
+          merchantResponse.data.getMerchant?.storeName as string,
+        )}/authorized-app/${authorizedAppId}`;
+
+        // Create response with session FIRST, then redirect
+        const responseCallbackUrl = NextResponse.redirect(
+          `/callback?token=${jwtToken}&redirectUrl=${redirectUrl}&authorizedAppId=${authorizedAppId}`,
+        );
+        await setSessionInResponse(responseCallbackUrl, session);
+
+        return responseCallbackUrl;
+      } else {
+        return NextResponse.json({ error: 'unable to retrieve merchant' }, { status: 403 });
+      }
+    }
   } catch (error) {
     console.error('Callback error:', error);
     return NextResponse.json({ error: 'Callback failed' }, { status: 500 });
   }
-} 
+}
