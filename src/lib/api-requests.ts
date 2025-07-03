@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { ApiResponseType } from '../globals/constants';
+import { CheckForReauthorizeApiResponse } from '../app/api/oauth/check-for-reauthorize/route';
+import { GetTokenWithSignatureApiRequest, GetTokenWithSignatureApiResponse } from '../app/api/oauth/get-token-with-signature/route';
 
 export async function makePostRequest<T>({ url, data, token }: { url: string; data?: any; token?: string }) {
   return axios.post<ApiResponseType<T>>(url, data, {
@@ -25,14 +27,8 @@ export async function makeGetRequest<T>({ url, data, token }: { url: string; dat
 // API requests object - frontend-backend bridge
 export const ApiRequests = {
   oauth: {
-    checkForReauthorize: (token: string) => 
-        makeGetRequest<CheckForReauthorizeApiResponse>({ url: '/api/oauth/check-for-reauthorize', token }),
+    checkForReauthorize: (token: string) => makeGetRequest<CheckForReauthorizeApiResponse>({ url: '/api/oauth/check-for-reauthorize', token }),
   },
-  ikas: {
-    getMerchant: (token: string) =>
-      makeGetRequest<{ data: GetMerchantApiResponse }>({
-        url: '/api/ikas/get-merchant',
-        token,
-      }),
-  },
+  getTokenWithSignature: (data: GetTokenWithSignatureApiRequest) =>
+    makePostRequest<GetTokenWithSignatureApiResponse>({ url: '/api/oauth/get-token-with-signature', data }),
 };
