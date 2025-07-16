@@ -17,6 +17,9 @@ export const config = {
     clientSecret: process.env.CLIENT_SECRET,
     redirectUri: `${process.env.NEXT_PUBLIC_DEPLOY_URL}/api/oauth/callback/ikas`,
   },
+  redis: {
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
+  },
 };
 
 export type Config = typeof config;

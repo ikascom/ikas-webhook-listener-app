@@ -1,6 +1,6 @@
-export declare const TOKEN_COOKIE = '_session_data';
-export declare const SESSION_USER = 'user';
-export declare const DEFAULT_KEY = 'default';
+export const TOKEN_COOKIE = '_session_data';
+export const SESSION_USER = 'user';
+export const DEFAULT_KEY = 'default';
 export type ApiErrorData = {
   statusCode: number;
   message: string;
@@ -15,7 +15,7 @@ export type ApiResponseType<T> =
       error?: ApiErrorResponse;
     }
   | undefined;
-export declare enum HttpStatusCode {
+export enum HttpStatusCode {
   SUCCESS = 200,
   CREATED = 201,
   BAD_REQUEST = 400,

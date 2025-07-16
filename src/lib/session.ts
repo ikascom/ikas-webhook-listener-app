@@ -1,6 +1,7 @@
 // this file is a wrapper with defaults to be used in both API routes and `getServerSideProps` functions
 import { getIronSession, sealData, unsealData } from 'iron-session';
 import { config } from '@/globals/config';
+import { TOKEN_COOKIE } from '@/globals/constants';
 
 export interface SessionData {
   merchantId?: string;
@@ -13,8 +14,8 @@ export interface SessionData {
 }
 
 const sessionOptions = {
-  password: config.SESSION_SECRET,
-  cookieName: config.SESSION_COOKIE_NAME,
+  password: config.cookiePassword || '',
+  cookieName: TOKEN_COOKIE || '',
   cookieOptions: {
     httpOnly: true,
     sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
@@ -32,6 +33,7 @@ export async function getSession(req: any, res: any): Promise<SessionData> {
 // For App Router
 export async function getSessionFromRequest(request: Request): Promise<SessionData> {
   const cookie = request.headers.get('cookie') || '';
+  console.log('sessionOptions', sessionOptions);
   const sessionData = await unsealData(cookie, sessionOptions);
   return sessionData || {};
 }
@@ -39,7 +41,7 @@ export async function getSessionFromRequest(request: Request): Promise<SessionDa
 // For App Router response
 export async function setSessionInResponse(response: Response, data: SessionData): Promise<Response> {
   const sealedData = await sealData(data, sessionOptions);
-  response.headers.set('Set-Cookie', `${config.SESSION_COOKIE_NAME}=${sealedData}; Path=/; HttpOnly; SameSite=Lax`);
+  response.headers.set('Set-Cookie', `${config.cookiePassword}=${sealedData}; Path=/; HttpOnly; SameSite=Lax`);
   return response;
 }
 

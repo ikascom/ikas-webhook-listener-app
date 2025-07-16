@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Section, Button, Text, Table } from '@ikas/components';
+import { Section, Button } from '@ikas/components';
 
 const LogsContainer = styled.div`
   padding: 20px;
@@ -156,14 +156,14 @@ export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
     <Section customContent>
       <LogsContainer>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <Text variant="h4">Webhook Logları</Text>
+          <div>Webhook Logları</div>
           <Button onClick={loadLogs} loading={isLoading}>
             Yenile
           </Button>
         </div>
 
         {logs.length === 0 && !isLoading ? (
-          <Text>Henüz webhook logu bulunmuyor.</Text>
+          <div>Henüz webhook logu bulunmuyor.</div>
         ) : (
           logs.map((log) => (
             <LogItem key={log.id}>

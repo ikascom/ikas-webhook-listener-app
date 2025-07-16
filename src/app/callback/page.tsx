@@ -1,20 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { TokenHelpers, Loading } from '@ikas-apps/common-client';
+import Loading from "@/components/Loading";
 
-export default function CallbackPage() {
+ function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const load = async () => {
       const params = new URLSearchParams(searchParams.toString());
-      await TokenHelpers.setToken(router, params);
+      console.log(params);
+      // await TokenHelpers.setToken(router, params);
     };
     load();
   }, [router, searchParams]);
 
   return <Loading />;
-} 
+}
+
+export default function CallbackPage() {
+  return (
+    <Suspense>
+      <CallbackContent />
+    </Suspense>
+  );
+}

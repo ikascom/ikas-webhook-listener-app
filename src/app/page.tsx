@@ -1,29 +1,36 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function Home() {
+function useBaseHomePage() {
+  const [isLoading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function load() {
+      // Burada AppBridge, token, dil, reauthorize vs. eklenebilir
+      // Şimdilik sadece authorize-store'a yönlendiriyoruz
+      await router.push('/authorize-store');
+      setLoading(false);
+    }
+    if (isLoading) return;
+    setLoading(true);
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
+function Loading() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
-        <h1 className="text-4xl font-bold mb-8 text-center">
-          İkas Webhook Listener Template
-        </h1>
-        
-        <div className="flex flex-col items-center space-y-4">
-          <Link 
-            href="/authorize-store" 
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Mağaza Yetkilendir
-          </Link>
-          
-          <Link 
-            href="/dashboard" 
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Dashboard
-          </Link>
-        </div>
-      </div>
-    </main>
+    <div className="flex items-center justify-center w-full h-screen text-gray-500 text-2xl font-medium">
+      <div>Lütfen Bekleyin...</div>
+    </div>
   );
-} 
+}
+
+export default function HomePage() {
+  useBaseHomePage();
+  return <Loading />;
+}

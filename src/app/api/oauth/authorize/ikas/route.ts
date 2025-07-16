@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     // Generate state for security
     const state = Math.random().toFixed(16);
 
+    console.log('request', request);
     // Get current session and update with state
     const session = await getSessionFromRequest(request);
     session.state = state;
@@ -34,6 +35,8 @@ export async function GET(request: NextRequest) {
       storeName,
       storeDomain: config.storeDomain!,
     });
+
+    console.log('oauthUrl', oauthUrl);
 
     // Create authorize url for ikas store and redirect to it
     const authorizeUrl = `${oauthUrl}/authorize?client_id=${config.oauth.clientId}&redirect_uri=${config.oauth.redirectUri}&scope=${config.oauth.scope}&state=${state}`;
