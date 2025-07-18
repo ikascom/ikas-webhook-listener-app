@@ -109,11 +109,11 @@ export async function GET(request: NextRequest) {
 
         return responseCallbackUrl;
       } else {
-        return NextResponse.json({ error: 'unable to retrieve merchant' }, { status: 403 });
+        return NextResponse.json({ error: { statusCode: 403, message: 'unable to retrieve merchant' } }, { status: 403 });
       }
     }
   } catch (error) {
     console.error('Callback error:', error);
-    return NextResponse.json({ error: 'Callback failed' }, { status: 500 });
+    return NextResponse.json({ error: { statusCode: 500, message: 'Callback failed' } }, { status: 500 });
   }
 }

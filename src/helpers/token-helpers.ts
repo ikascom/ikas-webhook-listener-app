@@ -1,7 +1,7 @@
 import { AuthConnectParams } from '@ikas/admin-api-client';
 import { AppBridgeHelper } from '@ikas/app-helpers';
-import { NextRouter } from 'next/router';
 import { ApiRequests } from '../lib/api-requests';
+import { useRouter } from 'next/navigation';
 
 const TOKEN_KEY = 'token';
 const AUTHORIZED_APP_ID_KEY = 'authorizedAppId';
@@ -13,7 +13,7 @@ export class TokenHelpers {
    * otherwise it won't retrieve token via AppBridge and throw a timeout error
    *
    */
-  static getTokenForIframeApp = async (router: NextRouter) => {
+  static getTokenForIframeApp = async (router: ReturnType<typeof useRouter>) => {
     // Check if token is inside an IFrame
     if (window.self !== window.top) {
       // Try to retrieve token from ikas dashboard via app bridge
@@ -56,7 +56,7 @@ export class TokenHelpers {
    * @param router Next Router object
    * @param params extracted query params from 'window.location'
    */
-  static getTokenForExternalApp = async (router: NextRouter, params: URLSearchParams) => {
+  static getTokenForExternalApp = async (router: ReturnType<typeof useRouter>, params: URLSearchParams) => {
     if (params.has('storeName')) {
       if (params.has('merchantId') && params.has('signature') && params.has(AUTHORIZED_APP_ID_KEY) && params.has('timestamp')) {
         const connectParams: AuthConnectParams = {
@@ -91,7 +91,7 @@ export class TokenHelpers {
     return;
   };
 
-  static setToken = async (router: any, params: URLSearchParams) => {
+  static setToken = async (router: ReturnType<typeof useRouter>, params: URLSearchParams) => {
     if (params.has('token') && params.has('redirectUrl') && params.has('authorizedAppId')) {
       const token = params.get('token')!;
 

@@ -1,22 +1,25 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
+import React from 'react';
+// Eğer styled-components veya benzeri bir tema kullanıyorsan aşağıdaki importları ekle:
+// import { ThemeProvider } from 'styled-components';
+// import { IkasThemeConfigProvider, lightTheme, locales, Toaster } from '@ikas/components';
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'İkas Webhook Listener Template',
-  description: 'İkas webhook listener template uygulaması',
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr">
-      <body className={inter.className}>{children}</body>
+      <head />
+      <body>
+        {/*
+        <ThemeProvider theme={lightTheme}>
+          <IkasThemeConfigProvider locale={locales.trTR}>
+            {children}
+            <Toaster />
+          </IkasThemeConfigProvider>
+        </ThemeProvider>
+        */}
+        {/* Eğer yukarıdaki provider'lar yoksa, sadece children'ı render et: */}
+        {children}
+      </body>
     </html>
   );
 } 

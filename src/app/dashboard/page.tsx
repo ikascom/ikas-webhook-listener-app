@@ -1,28 +1,43 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+// TokenHelpers'ı doğru path'ten import et
+import { TokenHelpers } from '@/helpers/token-helpers';
+import { ApiRequests } from '../../lib/api-requests';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [merchant, setMerchant] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Yükleniyor...</div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    let isMounted = true;
+    const init = async () => {
+      // 1. get token
+      const token = await TokenHelpers.getTokenForIframeApp(router);
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+    };
+
+    init();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
+
+  if (loading) return <div>Yükleniyor...</div>;
+  if (!merchant) return <div>Merchant bulunamadı.</div>;
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        </div>
-      </div>
+    <div>
+      <h2>Merchant Bilgisi</h2>
+      <pre>{JSON.stringify(merchant, null, 2)}</pre>
+      {/* Burada başka bir sayfaya yönlendirme de ekleyebilirsin */}
+      {/* örn: router.push('/baska-sayfa') */}
     </div>
   );
-} 
+}
