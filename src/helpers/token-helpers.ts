@@ -91,7 +91,7 @@ export class TokenHelpers {
     return;
   };
 
-  static setToken = async (router: NextRouter, params: URLSearchParams) => {
+  static setToken = async (router: any, params: URLSearchParams) => {
     if (params.has('token') && params.has('redirectUrl') && params.has('authorizedAppId')) {
       const token = params.get('token')!;
 

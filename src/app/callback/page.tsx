@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Loading from "@/components/Loading";
+import { TokenHelpers } from '../../helpers/token-helpers';
 
  function CallbackContent() {
   const router = useRouter();
@@ -12,7 +13,7 @@ import Loading from "@/components/Loading";
     const load = async () => {
       const params = new URLSearchParams(searchParams.toString());
       console.log(params);
-      // await TokenHelpers.setToken(router, params);
+      await TokenHelpers.setToken(router, params);
     };
     load();
   }, [router, searchParams]);

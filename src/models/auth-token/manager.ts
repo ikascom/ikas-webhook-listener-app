@@ -1,17 +1,29 @@
 import { AuthToken } from './index';
-import { dummyTokens } from './dummy-tokens';
+import fs from 'fs/promises';
+import path from 'path';
+
+const dummyTokens = require('./dummy-tokens.json');
 
 export class AuthTokenManager {
   static get(authorizedAppId: string): AuthToken | undefined {
-    return dummyTokens.find((o) => o.authorizedAppId === authorizedAppId);
+    return dummyTokens.find((o: any) => o.authorizedAppId === authorizedAppId);
   }
 
-  static put(token: AuthToken): AuthToken {
-    const existingToken = this.get(token.authorizedAppId!);
-    if (existingToken) {
-      return existingToken;
-    } else {
-      dummyTokens.push(token);
+  static async put(token: AuthToken): Promise<AuthToken> {
+    let tokens: AuthToken[] = [];
+    const tokensPath = path.resolve(process.cwd(), 'src/models/auth-token/dummy-tokens.json');
+    try {
+      const data = await fs.readFile(tokensPath, 'utf-8');
+      tokens = JSON.parse(data);
+    } catch (e) {
+      // If there is no file, start with an empty array
+      tokens = [];
+    }
+
+    const existing = tokens.find(t => t.authorizedAppId === token.authorizedAppId);
+    if (!existing) {
+      tokens.push(token);
+      await fs.writeFile(tokensPath, JSON.stringify(tokens, null, 2));
     }
     return token;
   }

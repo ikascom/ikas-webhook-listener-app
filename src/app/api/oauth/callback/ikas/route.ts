@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    if (!responseAuthorizationCode.data) {
+    if (responseAuthorizationCode.data) {
       let tokenTemp = {
         accessToken: responseAuthorizationCode.data!.access_token,
         refreshToken: responseAuthorizationCode.data!.refresh_token,
@@ -59,8 +59,6 @@ export async function GET(request: NextRequest) {
       const merchantResponse = await ikas.queries.getMerchant();
 
       const getAuthorizedAppResponse = await ikas.queries.getAuthorizedApp();
-      console.log('callback--> Merchant', JSON.stringify(merchantResponse.data));
-      console.log('callback--> AuthorizedAppId', JSON.stringify(getAuthorizedAppResponse.data));
       let token: AuthToken;
       if (merchantResponse.isSuccess && merchantResponse.data && getAuthorizedAppResponse.isSuccess && getAuthorizedAppResponse.data) {
         const expireDate = moment().add(responseAuthorizationCode.data!.expires_in, 'seconds').toDate().toISOString();
@@ -71,8 +69,9 @@ export async function GET(request: NextRequest) {
           ...tokenTemp,
           id: authorizedAppId,
           _id: authorizedAppId,
-          expireDate: expireDate,
+          authorizedAppId: authorizedAppId,
           merchantId: merchantId,
+          expireDate: expireDate,
           salesChannelId: getAuthorizedAppResponse.data?.getAuthorizedApp?.salesChannelId || null,
         };
         await AuthTokenManager.put(token);
@@ -98,9 +97,14 @@ export async function GET(request: NextRequest) {
         )}/authorized-app/${authorizedAppId}`;
 
         // Create response with session FIRST, then redirect
-        const responseCallbackUrl = NextResponse.redirect(
-          `/callback?token=${jwtToken}&redirectUrl=${redirectUrl}&authorizedAppId=${authorizedAppId}`,
-        );
+        const callbackUrl = new URL('/callback', request.url); // request.url burada base olarak kullanılır
+        callbackUrl.searchParams.set('token', jwtToken);
+        callbackUrl.searchParams.set('redirectUrl', redirectUrl);
+        callbackUrl.searchParams.set('authorizedAppId', authorizedAppId);
+
+        // Create response with session FIRST, then redirect
+        const responseCallbackUrl = NextResponse.redirect(callbackUrl);
+
         await setSessionInResponse(responseCallbackUrl, session);
 
         return responseCallbackUrl;

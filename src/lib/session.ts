@@ -32,16 +32,26 @@ export async function getSession(req: any, res: any): Promise<SessionData> {
 
 // For App Router
 export async function getSessionFromRequest(request: Request): Promise<SessionData> {
-  const cookie = request.headers.get('cookie') || '';
-  console.log('sessionOptions', sessionOptions);
-  const sessionData = await unsealData(cookie, sessionOptions);
-  return sessionData || {};
+  const rawCookie = request.headers.get('cookie') || '';
+  const cookiePrefix = `${sessionOptions.cookieName}=`;
+  const sealed = rawCookie.split('; ').find((c) => c.startsWith(cookiePrefix))?.slice(cookiePrefix.length);
+  if (!sealed) return {};
+
+  try {
+    const sessionData = await unsealData(sealed, {
+      password: sessionOptions.password,
+    });
+    return sessionData || {};
+  } catch (e) {
+    console.error('Session decode error', { sealed, error: e });
+    throw e;
+  }
 }
 
 // For App Router response
 export async function setSessionInResponse(response: Response, data: SessionData): Promise<Response> {
   const sealedData = await sealData(data, sessionOptions);
-  response.headers.set('Set-Cookie', `${config.cookiePassword}=${sealedData}; Path=/; HttpOnly; SameSite=Lax`);
+  response.headers.set('Set-Cookie', `${sessionOptions.cookieName}=${sealedData}; Path=/; HttpOnly; SameSite=Lax`);
   return response;
 }
 
