@@ -1,6 +1,84 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+
+const MainContainer = styled.main`
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 5rem;
+`;
+
+const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 28rem;
+  padding: 0 1rem;
+`;
+
+const Logo = styled.img`
+  max-width: 20rem;
+  margin-bottom: 3rem;
+`;
+
+const Form = styled.form`
+  width: 100%;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: var(--gray-900);
+  background: white;
+  transition: var(--transition-normal);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+  }
+  
+  &::placeholder {
+    color: var(--gray-400);
+  }
+`;
+
+const Button = styled.button`
+  width: 100%;
+  background: var(--primary-600);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: var(--transition-normal);
+  
+  &:hover:not(:disabled) {
+    background: var(--primary-700);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: var(--error-600);
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+`;
 
 export default function AuthorizeStorePage() {
   const [storeName, setStoreName] = useState<string>('');
@@ -17,32 +95,27 @@ export default function AuthorizeStorePage() {
   }, []);
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center pb-20">
-      <div className="flex flex-col justify-center items-center w-full max-w-md px-4">
-        <img src="/logo.png" alt="ikas Logo" className="max-w-xs mb-12" />
-        <form method="GET" action="/api/oauth/authorize/ikas" className="w-full">
-          <input
+    <MainContainer>
+      <FormContainer>
+        <Logo src="/logo.png" alt="ikas Logo" />
+        <Form method="GET" action="/api/oauth/authorize/ikas">
+          <Input
             name="storeName"
             placeholder="Mağaza adınızı girin"
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
-            className="text-black w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white rounded py-2 mt-6 disabled:opacity-50"
-            disabled={!storeName}
-          >
+          <Button type="submit" disabled={!storeName}>
             Mağazama Ekle
-          </button>
+          </Button>
           {showError && (
-            <div className="text-red-600 text-center mt-3 text-base">
+            <ErrorMessage>
               Bir hata oluştu. Lütfen tekrar deneyin.
-            </div>
+            </ErrorMessage>
           )}
-        </form>
-      </div>
-    </main>
+        </Form>
+      </FormContainer>
+    </MainContainer>
   );
 } 
