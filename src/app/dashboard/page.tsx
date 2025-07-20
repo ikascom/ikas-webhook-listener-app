@@ -74,17 +74,15 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('settings');
   const [tabsVisible, setTabsVisible] = useState(true);
 
-  // fillStoreName fonksiyonu - store name'i doldurur
+  // fillStoreName function - fills the store name
   const fillStoreName = useCallback(async (currentToken: string) => {
     try {
-      console.log('fillStoreName called with token:', currentToken);
       const res = await ApiRequests.ikas.getMerchant(currentToken);
       
       if (res.status === 200 && res.data?.data && res.data?.data.merchantInfo) {
         const merchantInfo = res.data.data.merchantInfo;
         if (merchantInfo?.storeName) {
           setStoreName(merchantInfo.storeName);
-          console.log('Store name set:', merchantInfo.storeName);
         }
       }
     } catch (error) {
@@ -92,20 +90,17 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // init fonksiyonu - component mount olduğunda çalışır
+  // init function - runs when component mounts
   const init = useCallback(async () => {
     try {
-      console.log('init called');
       const fetchedToken = await TokenHelpers.getTokenForIframeApp(router);
       setToken(fetchedToken || null);
-      
-      console.log('fetchedToken', fetchedToken);
       
       if (fetchedToken) {
         await fillStoreName(fetchedToken);
       }
 
-      // Dinleyici örnek
+      // Listener example
       onmessage = (event) => {
         // console.log('iframe message:', event);
       };
@@ -114,7 +109,7 @@ export default function DashboardPage() {
     }
   }, [router, fillStoreName]);
 
-  // Component mount olduğunda init çalışır
+  // Component mount - init runs
   useEffect(() => {
     init();
   }, [init]);

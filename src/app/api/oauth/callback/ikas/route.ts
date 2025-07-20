@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const { code, state } = validation.data;
 
-    // Session'dan state'i kontrol et
+    // Check state from session
     const session = await getSessionFromRequest(request);
     if (session.state !== state) {
       return NextResponse.json({ error: 'Invalid state parameter' }, { status: 400 });
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
         )}/authorized-app/${authorizedAppId}`;
 
         // Create response with session FIRST, then redirect
-        const callbackUrl = new URL('/callback', request.url); // request.url burada base olarak kullanılır
+        const callbackUrl = new URL('/callback', request.url); // request.url is used as base here
         callbackUrl.searchParams.set('token', jwtToken);
         callbackUrl.searchParams.set('redirectUrl', redirectUrl);
         callbackUrl.searchParams.set('authorizedAppId', authorizedAppId);

@@ -1,6 +1,6 @@
 import './globals.css';
 import React from 'react';
-// Eğer styled-components veya benzeri bir tema kullanıyorsan aşağıdaki importları ekle:
+// If you are using styled-components or similar theme, add the following imports:
 // import { ThemeProvider } from 'styled-components';
 // import { IkasThemeConfigProvider, lightTheme, locales, Toaster } from '@ikas/components';
 
