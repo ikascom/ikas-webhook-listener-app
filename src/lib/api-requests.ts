@@ -27,10 +27,12 @@ export async function makeGetRequest<T>({ url, data, token }: { url: string; dat
 
 // API requests object - frontend-backend bridge
 export const ApiRequests = {
+  ikas: {
+    getMerchant: (token: string) => makeGetRequest<GetMerchantApiResponse>({ url: '/api/ikas/get-merchant', token }),
+  },
   oauth: {
     checkForReauthorize: (token: string) => makeGetRequest<CheckForReauthorizeApiResponse>({ url: '/api/oauth/check-for-reauthorize', token }),
   },
   getTokenWithSignature: (data: GetTokenWithSignatureApiRequest) =>
     makePostRequest<GetTokenWithSignatureApiResponse>({ url: '/api/oauth/get-token-with-signature', data }),
-  getMerchant: (token: string) => makeGetRequest<GetMerchantApiResponse>({ url: '/api/ikas/get-merchant', token }),
 };

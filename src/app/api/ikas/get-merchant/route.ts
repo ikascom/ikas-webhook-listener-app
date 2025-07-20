@@ -10,13 +10,13 @@ export type GetMerchantApiResponse = {
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getUserFromRequest(request);
+    const user = getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const authToken = await AuthTokenManager.get(user.authorizedAppId);
+    const authToken = AuthTokenManager.get(user.authorizedAppId);
 
-    if (!authToken) {
+    if (authToken) {
       const ikasClient = getIkas(authToken!);
       const merchantResponse = await ikasClient.queries.getMerchant();
 
