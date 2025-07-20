@@ -17,9 +17,10 @@ export const config = {
     clientSecret: process.env.CLIENT_SECRET,
     redirectUri: `${process.env.NEXT_PUBLIC_DEPLOY_URL}/api/oauth/callback/ikas`,
   },
-  redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
-  },
+  vercel: {
+    authToken: process.env.VERCEL_AUTH_TOKEN,
+    teamId: process.env.VERCEL_TEAM_ID,
+  }
 };
 
 export type Config = typeof config;
