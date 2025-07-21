@@ -16,7 +16,7 @@
   "dependencies": {
     "@ikas/admin-api-client": "2.0.8",
     "@ikas/app-helpers": "^1.0.6",
-    "@vercel/client": "^13.0.0",
+    "@vercel/client": "^15.3.12",
     "axios": "^1.10.0",
     "graphql-request": "^7.0.0",
     "iron-session": "^8.0.4",
@@ -42,11 +42,11 @@
     "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "8.30.1",
     "@typescript-eslint/parser": "8.30.1",
+    "dotenv": "^16.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
-    "typescript": "^5",
     "ts-node": "^10.9.0",
-    "dotenv": "^16.0.0"
+    "typescript": "^5"
   },
   "prettier": {
     "semi": true,

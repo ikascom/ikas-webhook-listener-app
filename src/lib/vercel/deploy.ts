@@ -5,7 +5,7 @@ import { VercelManager } from './manager';
 
 export async function deployToVercel() {
   if (['prod', 'dev'].includes(process.env.DEPLOY_ENV || '')) {
-    const srcDir = path.basename(path.join(__dirname, '../../../../'));
+    const srcDir = path.basename(path.join(__dirname, '../../../'));
 
     const env = process.env.DEPLOY_ENV;
     

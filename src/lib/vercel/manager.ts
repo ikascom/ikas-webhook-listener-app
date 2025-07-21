@@ -8,23 +8,22 @@ type BuilderFunctions = {
   };
 };
 
-
 export class VercelManager {
   srcDir: string;
   name: string;
   libs?: string[];
-  common: { vercel: { authToken: string; teamId: string, region: string } };
+  common: { vercel: { authToken: string; teamId: string; region: string } };
   functions: BuilderFunctions;
 
   constructor({ name, functions, libs }: { name: string; functions?: BuilderFunctions; libs?: string[] }) {
-    this.srcDir = path.join(__dirname, '../../../../');
+    this.srcDir = path.resolve(path.join(__dirname, '../../../'));
     this.name = name;
     this.libs = libs;
     this.common = {
       vercel: {
         authToken: process.env.VERCEL_AUTH_TOKEN || '',
         teamId: process.env.VERCEL_TEAM_ID || '',
-        region: process.env.VERCEL_REGION || '',
+        region: process.env.VERCEL_REGION || 'fra1',
       },
     };
 
@@ -87,25 +86,30 @@ export class VercelManager {
   async createBuildFolder() {
     const fs = require('fs');
     const { execSync } = require('child_process');
-    const rootDir = path.join(__dirname, '../../../../');
+    const rootDir = path.join(__dirname, '../../..');
     const buildDir = path.join(rootDir, 'build');
 
     if (fs.existsSync(buildDir)) {
-      fs.rmdirSync(buildDir, { recursive: true });
+      fs.rmSync(buildDir, { recursive: true });
     }
 
     fs.mkdirSync(buildDir);
 
-    // Copy the entire project excluding unnecessary files
-    execSync(`rsync -av --progress ${rootDir} ${buildDir} --exclude node_modules --exclude dist --exclude build --exclude .next`);
+    // Copy only essential files for deployment
+    const filesToCopy = ['package.json', 'pnpm-lock.yaml', 'next.config.js', '.env.production', 'tsconfig.json', 'src', 'public', 'app'];
 
-    // Copy required files
-    const files = ['package.json', 'pnpm-lock.yaml', 'next.config.js', '.env.production'];
-    for (const f of files) {
-      const sourcePath = path.join(rootDir, f);
-      const targetPath = path.join(buildDir, f);
+    for (const file of filesToCopy) {
+      const sourcePath = path.join(rootDir, file);
+      const targetPath = path.join(buildDir, file);
+
       if (fs.existsSync(sourcePath)) {
-        execSync(`cp ${sourcePath} ${targetPath}`);
+        if (fs.statSync(sourcePath).isDirectory()) {
+          // Copy directory
+          execSync(`cp -r "${sourcePath}" "${targetPath}"`);
+        } else {
+          // Copy file
+          execSync(`cp "${sourcePath}" "${targetPath}"`);
+        }
       }
     }
 
@@ -134,12 +138,11 @@ export class VercelManager {
         {
           name: name,
           target: 'production',
-          rewrites: [],
           functions: this.functions,
-          regions: [this.common.vercel.region],
           projectSettings: {
-            buildCommand: `npm run build`,
+            buildCommand: `pnpm build`,
             outputDirectory: `.next`,
+            framework: 'nextjs',
           },
           env,
         },
@@ -168,7 +171,7 @@ export class VercelManager {
       }
 
       if (fs.existsSync(buildDir)) {
-        fs.rmdirSync(buildDir, { recursive: true });
+        fs.rmSync(buildDir, { recursive: true });
       }
 
       const nextDir = path.join(__dirname, '../../../../.next');

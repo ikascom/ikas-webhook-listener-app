@@ -16,10 +16,6 @@ export const config = {
     clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     redirectUri: `${process.env.NEXT_PUBLIC_DEPLOY_URL}/api/oauth/callback/ikas`,
-  },
-  vercel: {
-    authToken: process.env.VERCEL_AUTH_TOKEN,
-    teamId: process.env.VERCEL_TEAM_ID,
   }
 };
 
