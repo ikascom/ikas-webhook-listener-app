@@ -1,30 +1,18 @@
 import { BaseGraphQLAPIClient, BaseGraphQLAPIClientOptions, APIResult } from '@ikas/admin-api-client';
 
+export enum MerchantRegionEnum {
+  AF = "AF",
+  AN = "AN",
+  AS = "AS",
+  EU = "EU",
+  OC = "OC",
+  PL = "PL",
+  TR = "TR",
+  US = "US"
+}
 export enum MerchantSettingsAddressTypeEnum {
   CORPORATE = "CORPORATE",
   INDIVIDUAL = "INDIVIDUAL"
-}
-export enum SalesChannelTypeEnum {
-  ADMIN = "ADMIN",
-  APP = "APP",
-  B2B_STOREFRONT = "B2B_STOREFRONT",
-  FACEBOOK = "FACEBOOK",
-  GOOGLE = "GOOGLE",
-  POS = "POS",
-  STOREFRONT = "STOREFRONT",
-  STOREFRONT_APP = "STOREFRONT_APP"
-}
-export enum StockLocationDeliveryTimeEnum {
-  TWO_IN_FOUR_DAYS = "TWO_IN_FOUR_DAYS",
-  WITHIN_FOUR_HOURS = "WITHIN_FOUR_HOURS",
-  WITHIN_ONE_HOUR = "WITHIN_ONE_HOUR",
-  WITHIN_PLUS_FIVE_DAYS = "WITHIN_PLUS_FIVE_DAYS",
-  WITHIN_TWENTY_FOUR_HOURS = "WITHIN_TWENTY_FOUR_HOURS",
-  WITHIN_TWO_HOURS = "WITHIN_TWO_HOURS"
-}
-export enum StockLocationTypeEnum {
-  PHYSICAL = "PHYSICAL",
-  VIRTUAL = "VIRTUAL"
 }
 export interface AuthorizedApp {
   addedDate: number;
@@ -87,101 +75,23 @@ export interface MerchantResponse {
   merchantName?: string;
   merchantSequence?: number;
   phoneNumber?: string;
+  region?: MerchantRegionEnum;
   storeName?: string;
 }
-export interface SalesChannel {
+export interface Webhook {
   createdAt?: number;
   deleted: boolean;
+  endpoint: string;
   id: string;
-  name: string;
-  paymentGateways?: Array<SalesChannelPaymentGateway>;
-  priceListId?: string;
-  stockLocations?: Array<SalesChannelStockLocation>;
-  type: SalesChannelTypeEnum;
+  scope: string;
   updatedAt?: number;
 }
-export interface SalesChannelPaymentGateway {
-  id: string;
-  order: number;
-}
-export interface SalesChannelStockLocation {
-  id: string;
-  order: number;
-}
-export interface StockLocation {
-  address?: StockLocationAddress;
-  createdAt?: number;
-  deleted: boolean;
-  deliveryTime?: StockLocationDeliveryTimeEnum;
-  description?: string;
-  id: string;
-  isRemindOutOfStockEnabled?: boolean;
-  name: string;
-  outOfStockMailList?: Array<string>;
-  translations?: Array<StockLocationTranslation>;
-  type?: StockLocationTypeEnum;
-  updatedAt?: number;
-}
-export interface StockLocationAddress {
-  address?: string;
-  city?: StockLocationAddressCity;
-  country?: StockLocationAddressCountry;
-  district?: StockLocationAddressDistrict;
-  phone?: string;
-  postalCode?: string;
-  state?: StockLocationAddressState;
-}
-export interface StockLocationAddressCity {
-  code?: string;
-  id?: string;
-  name: string;
-}
-export interface StockLocationAddressCountry {
-  code?: string;
-  id?: string;
-  iso2?: string;
-  iso3?: string;
-  name: string;
-}
-export interface StockLocationAddressDistrict {
-  code?: string;
-  id?: string;
-  name?: string;
-}
-export interface StockLocationAddressState {
-  code?: string;
-  id?: string;
-  name?: string;
-}
-export interface StockLocationTranslation {
-  description?: string;
-  locale: string;
-}
-export interface PublicTimelineInput {
-  message: string;
-  sourceId: string;
+export interface WebhookInput {
+  endpoint: string;
+  salesChannelIds?: Array<string>;
+  scopes: Array<string>;
 }
 
-export interface ListSalesChannelQueryVariables {}
-export interface ListSalesChannelQuery {
-  listSalesChannel: Array<{
-  id: string;
-  name: string;
-}>;
-}
-export interface ListStockLocationQueryVariables {}
-export interface ListStockLocationQuery {
-  listStockLocation: Array<{
-  id: string;
-  name: string;
-}>;
-}
-export interface AddCustomTimelineEntryMutationVariables {
-  input: PublicTimelineInput;
-}
-export interface AddCustomTimelineEntryMutation {
-  addCustomTimelineEntry: boolean;
-}
 export interface GetMerchantQueryVariables {}
 export interface GetMerchantQuery {
   getMerchant: {
@@ -197,36 +107,36 @@ export interface GetAuthorizedAppQuery {
   salesChannelId?: string;
 };
 }
+export interface SaveWebhooksMutationVariables {
+  input: WebhookInput;
+}
+export interface SaveWebhooksMutation {
+  saveWebhooks?: Array<{
+  createdAt?: number;
+  deleted: boolean;
+  endpoint: string;
+  id: string;
+  scope: string;
+  updatedAt?: number;
+}>;
+}
+export interface ListWebhookQueryVariables {}
+export interface ListWebhookQuery {
+  listWebhook: Array<{
+  createdAt?: number;
+  endpoint: string;
+  deleted: boolean;
+  id: string;
+  scope: string;
+  updatedAt?: number;
+}>;
+}
 
 export class GeneratedQuery {
   client: BaseGraphQLAPIClient<any>;
 
   constructor(client: BaseGraphQLAPIClient<any>) {
     this.client = client;
-  }
-
-  async listSalesChannel(): Promise<APIResult<Partial<ListSalesChannelQuery>>> {
-    const query = `
-  query listSalesChannel {
-    listSalesChannel {
-      id
-      name
-    }
-  }
-`;
-    return this.client.query<Partial<ListSalesChannelQuery>>({ query });
-  }
-
-  async listStockLocation(): Promise<APIResult<Partial<ListStockLocationQuery>>> {
-    const query = `
-  query listStockLocation {
-    listStockLocation {
-      id
-      name
-    }
-  }
-`;
-    return this.client.query<Partial<ListStockLocationQuery>>({ query });
   }
 
   async getMerchant(): Promise<APIResult<Partial<GetMerchantQuery>>> {
@@ -254,6 +164,22 @@ export class GeneratedQuery {
     return this.client.query<Partial<GetAuthorizedAppQuery>>({ query });
   }
 
+  async listWebhook(): Promise<APIResult<Partial<ListWebhookQuery>>> {
+    const query = `
+  query ListWebhook {
+    listWebhook {
+      createdAt
+      endpoint
+      deleted
+      id
+      scope
+      updatedAt
+    }
+  }
+`;
+    return this.client.query<Partial<ListWebhookQuery>>({ query });
+  }
+
 }
 
 export class GeneratedMutation {
@@ -263,13 +189,20 @@ export class GeneratedMutation {
     this.client = client;
   }
 
-  async addCustomTimelineEntry(variables: AddCustomTimelineEntryMutationVariables): Promise<APIResult<Partial<AddCustomTimelineEntryMutation>>> {
+  async saveWebhooks(variables: SaveWebhooksMutationVariables): Promise<APIResult<Partial<SaveWebhooksMutation>>> {
     const mutation = `
-  mutation addCustomTimelineEntry($input: PublicTimelineInput!) {
-    addCustomTimelineEntry(input: $input)
+  mutation SaveWebhooks($input: WebhookInput!) {
+    saveWebhooks(input: $input) {
+      createdAt
+      deleted
+      endpoint
+      id
+      scope
+      updatedAt
+    }
   }
 `;
-    return this.client.mutate<Partial<AddCustomTimelineEntryMutation>>({ mutation, variables });
+    return this.client.mutate<Partial<SaveWebhooksMutation>>({ mutation, variables });
   }
 
 }

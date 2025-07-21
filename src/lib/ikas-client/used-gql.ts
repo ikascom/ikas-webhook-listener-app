@@ -1,29 +1,5 @@
 import { gql } from 'graphql-request';
 
-export const LIST_SALES_CHANNEL = gql`
-  query listSalesChannel {
-    listSalesChannel {
-      id
-      name
-    }
-  }
-`;
-
-export const LIST_STOCK_LOCATIONS = gql`
-  query listStockLocation {
-    listStockLocation {
-      id
-      name
-    }
-  }
-`;
-
-export const ADD_CUSTOM_TIMELINE_ENTRY = gql`
-  mutation addCustomTimelineEntry($input: PublicTimelineInput!) {
-    addCustomTimelineEntry(input: $input)
-  }
-`;
-
 export const GET_MERCHANT = gql`
   query getMerchant {
     getMerchant {
@@ -34,12 +10,37 @@ export const GET_MERCHANT = gql`
   }
 `;
 
-
 export const GET_AUTHORIZED_APP = gql`
   query getAuthorizedApp {
     getAuthorizedApp {
       id
       salesChannelId
+    }
+  }
+`;
+
+export const SAVE_WEBHOOKS = gql`
+  mutation SaveWebhooks($input: WebhookInput!) {
+    saveWebhooks(input: $input) {
+      createdAt
+      deleted
+      endpoint
+      id
+      scope
+      updatedAt
+    }
+  }
+`;
+
+export const LIST_WEBHOOKS = gql`
+  query ListWebhook {
+    listWebhook {
+      createdAt
+      endpoint
+      deleted
+      id
+      scope
+      updatedAt
     }
   }
 `;
