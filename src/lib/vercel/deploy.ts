@@ -8,9 +8,9 @@ export async function deployToVercel() {
     const srcDir = path.basename(path.join(__dirname, '../../../'));
 
     const env = process.env.DEPLOY_ENV;
-    
+
     // VercelManager for webhook project
-    const manager = new VercelManager({ 
+    const manager = new VercelManager({
       name: srcDir,
       functions: {
         'src/app/api/**/*.ts': {
@@ -19,12 +19,12 @@ export async function deployToVercel() {
         },
       }
     });
-    
+
     logEnv();
 
-    const parsed = getEnv();
+        const parsed = getEnv();
     await manager.deployToVercel(`ikas-webhook-listener-${env}`, [], parsed);
   }
 }
 
-deployToVercel(); 
+deployToVercel();

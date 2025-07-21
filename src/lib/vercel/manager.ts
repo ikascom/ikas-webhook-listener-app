@@ -127,6 +127,12 @@ export class VercelManager {
       const buildDir = await this.createBuildFolder();
       console.log('build folder created');
 
+      // Build the app in the build directory with correct environment variables
+      const { execSync } = require('child_process');
+      console.log('Building Next.js app...');
+      execSync('pnpm build', { cwd: buildDir, stdio: 'inherit' });
+      console.log('Next.js build completed');
+
       for await (const event of createDeployment(
         {
           apiUrl: 'https://api.vercel.com',

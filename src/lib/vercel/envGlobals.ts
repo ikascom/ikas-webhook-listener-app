@@ -4,7 +4,7 @@ NEXT_PUBLIC_GRAPH_API_URL = https://api.myikas.dev/api/v2/admin/graphql
 NEXT_PUBLIC_OAUTH_URL = https://{storeName}.myikas.dev/api/admin/oauth
 NEXT_PUBLIC_ADMIN_URL = https://{storeName}.myikas.dev/admin
 NEXT_PUBLIC_STORE_DOMAIN = .myikas.dev
-NEXT_PUBLIC_DEPLOY_URL = https://ikas-webhook-listener-dev.ikasapps.com
+NEXT_PUBLIC_DEPLOY_URL = https://ikas-webhook-listener-dev-ikascom.vercel.app
 NEXT_PUBLIC_DASHBOARD_URL = https://{storeName}.myikas.dev/admin/order/view
 IKAS_IMAGE_ADDRESS=https://cdn.myikas.dev
 
@@ -23,7 +23,7 @@ NEXT_PUBLIC_GRAPH_API_URL = https://api.myikas.com/api/v2/admin/graphql
 NEXT_PUBLIC_OAUTH_URL = https://{storeName}.myikas.com/api/admin/oauth
 NEXT_PUBLIC_ADMIN_URL = https://{storeName}.myikas.com/admin
 NEXT_PUBLIC_STORE_DOMAIN = .myikas.com
-NEXT_PUBLIC_DEPLOY_URL = https://ikas-webhook-listener.ikasapps.com
+NEXT_PUBLIC_DEPLOY_URL = https://ikas-webhook-listener-ikascom.vercel.app
 NEXT_PUBLIC_DASHBOARD_URL = https://{storeName}.myikas.com/admin/order/view
 IKAS_IMAGE_ADDRESS=https://cdn.myikas.com
 
