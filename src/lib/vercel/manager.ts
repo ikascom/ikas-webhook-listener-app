@@ -129,6 +129,7 @@ export class VercelManager {
 
       for await (const event of createDeployment(
         {
+          apiUrl: 'https://api.vercel.com',
           token: this.common.vercel.authToken,
           path: buildDir,
           isDirectory: true,

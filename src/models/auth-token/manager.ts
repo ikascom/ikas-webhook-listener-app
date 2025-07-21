@@ -11,7 +11,7 @@ export class AuthTokenManager {
 
   static async put(token: AuthToken): Promise<AuthToken> {
     let tokens: AuthToken[] = [];
-    const tokensPath = path.resolve(process.cwd(), 'src/models/auth-token/dummy-tokens.json');
+    const tokensPath = path.resolve(__dirname, 'dummy-tokens.json');
     try {
       const data = await fs.readFile(tokensPath, 'utf-8');
       tokens = JSON.parse(data);

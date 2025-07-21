@@ -62,4 +62,10 @@ Before deploying, you need to set up your Vercel credentials:
 - `.env.production` file is automatically created during deploy
 - Build folder is automatically cleaned after deploy
 - Vercel project is automatically created and configured
-- Make sure to keep your Vercel credentials secure and never commit them to version control 
+- Make sure to keep your Vercel credentials secure and never commit them to version control
+
+## Troubleshooting
+
+If you encounter `Protocol "https:" not supported. Expected "http:"` error:
+- This is fixed by explicitly setting `apiUrl: 'https://api.vercel.com'` in createDeployment options
+- This issue occurs with newer Node.js versions (22+) and @vercel/client v14+ 

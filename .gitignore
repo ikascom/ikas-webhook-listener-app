@@ -50,3 +50,4 @@ Thumbs.db
 !package.json
 !tsconfig.json
 !next.config.ts
+!src/models/auth-token/dummy-tokens.json

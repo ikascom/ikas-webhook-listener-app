@@ -8,7 +8,7 @@ export function logEnv() {
 }
 
 export function copyEnv() {
-  const srcDir = path.join(__dirname, '../../../../');
+  const srcDir = path.join(__dirname, '../../../');
   const env = process.env.DEPLOY_ENV;
   const envString = env == 'production' || env == 'prod' ? prodEnv : devEnv;
   fs.writeFileSync(`${srcDir}/.env.production`, envString);
@@ -16,6 +16,6 @@ export function copyEnv() {
 
 copyEnv();
 dotenv.config({
-  path: path.resolve(__dirname, '../../../../.env.production'),
+  path: path.resolve(__dirname, '../../../.env.production'),
 });
 console.log('ready'); 
