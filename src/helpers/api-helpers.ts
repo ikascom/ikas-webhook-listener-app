@@ -3,10 +3,11 @@ import moment from 'moment';
 import { AuthToken } from '../models/auth-token';
 import { AuthTokenManager } from '../models/auth-token/manager';
 import { ikasAdminGraphQLAPIClient } from '../lib/ikas-client/generated/graphql';
+import { config } from '../globals/config';
 
 export function getIkas(token: AuthToken): ikasAdminGraphQLAPIClient<AuthToken> {
   const client = new ikasAdminGraphQLAPIClient<AuthToken>({
-    graphApiUrl: 'https://api.myikas.dev/api/v2/admin/graphql',
+    graphApiUrl: config.graphApiUrl!,
     accessToken: token.accessToken,
     tokenData: token,
     onCheckToken: () => onCheckToken(token),
@@ -30,7 +31,7 @@ export async function onCheckToken(token?: AuthToken): Promise<{ accessToken: st
           },
           {
             storeName: 'api',
-            storeDomain: process.env.NEXT_PUBLIC_STORE_DOMAIN as string,
+            storeDomain: '.myikas.com',
           },
         );
         if (response.data) {

@@ -8,15 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "codegen": "graphql-codegen --config src/lib/ikas-client/codegen.ts",
-    "build:watch": "tsc --watch",
-    "deploy:dev": "DEPLOY_ENV=dev ts-node src/lib/vercel/deploy.ts",
-    "deploy:prod": "DEPLOY_ENV=prod ts-node src/lib/vercel/deploy.ts"
+    "build:watch": "tsc --watch"
   },
   "packageManager": "pnpm@10.4.1",
   "dependencies": {
     "@ikas/admin-api-client": "2.0.8",
     "@ikas/app-helpers": "^1.0.6",
-    "@vercel/client": "^15.3.12",
     "axios": "^1.10.0",
     "graphql-request": "^7.0.0",
     "iron-session": "^8.0.4",

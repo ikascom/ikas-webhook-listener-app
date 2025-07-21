@@ -30,7 +30,7 @@ export class JwtHelpers {
       expiresIn: '4h', // 4 Hours
       algorithm: 'HS256',
       subject: merchantId,
-      issuer: process.env.NEXT_PUBLIC_DEPLOY_URL || '',
+      issuer: '.myikas.com',
       audience: authorizedAppId,
       jwtid: uuidv4(),
     });
