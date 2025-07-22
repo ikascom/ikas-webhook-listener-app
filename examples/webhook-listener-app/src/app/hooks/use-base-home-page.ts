@@ -19,10 +19,7 @@ export function useBaseHomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Prevent running the effect if already loading
-    if (isLoading) return;
 
-    setIsLoading(true);
 
     /**
      * Handles the authentication and authorization logic.
@@ -75,10 +72,12 @@ export function useBaseHomePage() {
         setIsLoading(false);
       }
     };
-
+    // Prevent running the effect if already loading
+    if (isLoading) return;
+    setIsLoading(true);
     initialize();
 
     // No cleanup needed
     return () => {};
-  }, [isLoading, router]);
+  }, []);
 }
