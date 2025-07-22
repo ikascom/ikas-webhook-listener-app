@@ -1,54 +1,59 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { OAuthAPI } from '@ikas/admin-api-client';
-import { config } from '@/globals/config';
-import { getSessionFromRequest, setSessionInResponse } from '@/lib/session';
-import { authorizeSchema, validateRequest } from '@/lib/validation';
 
+import { config } from '@/globals/config';
+import { getSession, setSession } from '@/lib/session';
+import { authorizeSchema, validateRequest } from '@/lib/validation';
+import { OAuthAPI } from '@ikas/admin-api-client';
+import { NextRequest, NextResponse } from 'next/server';
+
+/**
+ * Handles the OAuth authorization initiation for Ikas.
+ * Validates the incoming request, generates a secure state, updates the session,
+ * and redirects the user to the Ikas OAuth authorization URL.
+ */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    
-    // Validate request parameters
+    // Parse the request URL to extract query parameters
+    const url = new URL(request.url as string, `http://${request.headers.get('host')}`);
+    const { searchParams } = url;
+
+    // Validate the incoming request parameters (expects storeName)
     const validation = validateRequest(authorizeSchema, {
       storeName: searchParams.get('storeName'),
     });
 
     if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error },
-        { status: 400 },
-      );
+      // If validation fails, return a 400 error with details
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
     const { storeName } = validation.data;
 
-    // Generate state for security
+    // Generate a random state string for CSRF protection
     const state = Math.random().toFixed(16);
 
-    // Get current session and update with state
-    const session = await getSessionFromRequest(request);
+    // Retrieve the current session and update it with state and storeName
+    const session = await getSession();
     session.state = state;
     session.storeName = storeName;
 
-    // OAuthAPI.getOAuthUrl generates a root url for your app by using given storeName
-    const oauthUrl = OAuthAPI.getOAuthUrl({
-      storeName,
-      storeDomain: config.storeDomain!,
-    });
+    // Save the updated session before redirecting
+    await setSession(session);
 
-    // Create authorize url for ikas store and redirect to it
-    const authorizeUrl = `${oauthUrl}/authorize?client_id=${config.oauth.clientId}&redirect_uri=${config.oauth.redirectUri}&scope=${config.oauth.scope}&state=${state}`;
+    // Generate the base OAuth URL for the given store
+    const oauthBaseUrl = OAuthAPI.getOAuthUrl({ storeName });
 
-    // Create response with session FIRST, then redirect
-    const response = NextResponse.redirect(authorizeUrl);
-    await setSessionInResponse(response, session);
+    // Construct the full Ikas OAuth authorize URL with required query parameters
+    const authorizeUrl = `${oauthBaseUrl}/authorize` +
+      `?client_id=${encodeURIComponent(config.oauth.clientId!)}` +
+      `&redirect_uri=${encodeURIComponent(config.oauth.redirectUri)}` +
+      `&scope=${encodeURIComponent(config.oauth.scope)}` +
+      `&state=${encodeURIComponent(state)}`;
 
-    return response;
+    // Redirect the user to the Ikas OAuth authorization page
+    return NextResponse.redirect(authorizeUrl);
   } catch (error) {
+    // Log and return a 500 error if something goes wrong
     console.error('Authorize error:', error);
-    return NextResponse.json(
-      { error: 'Authorization failed' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Authorization failed' }, { status: 500 });
   }
 }

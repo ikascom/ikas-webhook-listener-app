@@ -1,24 +1,24 @@
 import { config } from '@/globals/config';
 import { JwtHelpers } from '@/helpers/jwt-helpers';
-import { getTokenWithSignatureSchema, validateRequest } from '@/lib/validation';
+import { GetTokenWithSignatureRequest, getTokenWithSignatureSchema, validateRequest } from '@/lib/validation';
 import { validateAuthSignature } from '@ikas/admin-api-client';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export type GetTokenWithSignatureApiRequest = {
-  authorizedAppId: string;
-  merchantId: string;
-  signature: string;
-  storeName: string;
-  timestamp: string;
-};
-
+export type GetTokenWithSignatureApiRequest = GetTokenWithSignatureRequest;
 export type GetTokenWithSignatureApiResponse = { token: string };
 
+/**
+ * Handles POST requests to get a token with a signature.
+ * - Validates the request body against the expected schema.
+ * - Validates the signature using the client secret.
+ * - Creates a JWT token with the provided data.
+ * - Returns the token or an appropriate error response.
+ */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
     // Validate shape and required fields
-    const validation = validateRequest(getTokenWithSignatureSchema, body);
+    const validation = validateRequest(getTokenWithSignatureSchema, await request.json());
     if (!validation.success) {
       return NextResponse.json({ error: { statusCode: 400, message: validation.error } }, { status: 400 });
     }

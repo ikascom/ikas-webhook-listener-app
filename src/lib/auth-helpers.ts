@@ -1,5 +1,4 @@
 import { JwtHelpers } from '../helpers/jwt-helpers';
-import { NextRequest } from 'next/server';
 
 /**
  * Extracts user information (authorizedAppId and merchantId) from the Authorization header in the request.
@@ -7,9 +6,9 @@ import { NextRequest } from 'next/server';
  * @param request - The incoming NextRequest object from a route handler or middleware.
  * @returns An object containing authorizedAppId and merchantId if the JWT is valid, otherwise null.
  */
-export function getUserFromRequest(request: NextRequest) {
+export function getUserFromRequest(request: Request) {
   // Get the Authorization header from the request
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.get('Authorization');
   if (!authHeader) return null;
 
   // Remove "JWT " prefix and extract the token

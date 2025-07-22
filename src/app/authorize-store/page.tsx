@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+// Styled-components for layout and UI
 const MainContainer = styled.main`
   min-height: 100vh;
   display: flex;
@@ -27,7 +28,7 @@ const Logo = styled.img`
   margin-bottom: 3rem;
 `;
 
-const Form = styled.form`
+const StyledForm = styled.form`
   width: 100%;
 `;
 
@@ -40,13 +41,13 @@ const Input = styled.input`
   color: var(--gray-900);
   background: white;
   transition: var(--transition-normal);
-  
+
   &:focus {
     outline: none;
     border-color: var(--primary-500);
     box-shadow: 0 0 0 3px var(--primary-100);
   }
-  
+
   &::placeholder {
     color: var(--gray-400);
   }
@@ -62,11 +63,11 @@ const Button = styled.button`
   font-size: 1rem;
   font-weight: 500;
   transition: var(--transition-normal);
-  
+
   &:hover:not(:disabled) {
     background: var(--primary-700);
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -80,42 +81,70 @@ const ErrorMessage = styled.div`
   font-size: 1rem;
 `;
 
-export default function AuthorizeStorePage() {
-  const [storeName, setStoreName] = useState<string>('');
-  const [showError, setShowError] = useState<boolean>(false);
+/**
+ * AuthorizeStorePage
+ * - Renders a form for the user to enter their store name and authorize the app.
+ * - Handles error display if redirected back with a failure status.
+ */
+const AuthorizeStorePage: React.FC = () => {
+  // State for the store name input
+  const [storeName, setStoreName] = useState('');
+  // State to control error message visibility
+  const [showError, setShowError] = useState(false);
 
+  // Parse query params on mount to prefill storeName and show error if needed
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.has('status') && params.get('status') === 'fail') {
+    if (params.get('status') === 'fail') {
       setShowError(true);
     }
-    if (params.has('storeName')) {
-      setStoreName(params.get('storeName') || '');
+    const store = params.get('storeName');
+    if (store) {
+      setStoreName(store);
     }
   }, []);
+
+  // Handler for input change
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setStoreName(e.target.value);
+      if (showError) setShowError(false); // Hide error on user input
+    },
+    [showError]
+  );
 
   return (
     <MainContainer>
       <FormContainer>
         <Logo src="/logo.png" alt="ikas Logo" />
-        <Form method="GET" action="/api/oauth/authorize/ikas">
+        {/* 
+          Form submits storeName as a GET param to the OAuth authorize endpoint.
+          Button is disabled if input is empty.
+        */}
+        <StyledForm method="GET" action="/api/oauth/authorize/ikas" autoComplete="off">
           <Input
             name="storeName"
-            placeholder="Mağaza adınızı girin"
+            placeholder="Enter your store name"
             value={storeName}
-            onChange={(e) => setStoreName(e.target.value)}
+            onChange={handleInputChange}
             required
+            autoFocus
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="none"
           />
-          <Button type="submit" disabled={!storeName}>
-            Mağazama Ekle
+          <Button type="submit" disabled={!storeName.trim()}>
+            Add to My Store
           </Button>
           {showError && (
             <ErrorMessage>
-              Bir hata oluştu. Lütfen tekrar deneyin.
+              An error occurred. Please try again.
             </ErrorMessage>
           )}
-        </Form>
+        </StyledForm>
       </FormContainer>
     </MainContainer>
   );
-} 
+};
+
+export default AuthorizeStorePage;

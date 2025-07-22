@@ -1,7 +1,6 @@
 
 export interface AuthToken {
   id: string;
-  _id: string;
   merchantId: string;
   authorizedAppId?: string;
   salesChannelId: string | null;
@@ -30,7 +29,6 @@ export function getToken(token: AuthToken): AuthToken {
     scope: token.scope,
     tokenType: token.tokenType,
     type: '',
-    id: token._id,
-    _id: token._id,
+    id: token.id,
   };
 } 

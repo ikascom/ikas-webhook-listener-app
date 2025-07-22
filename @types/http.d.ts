@@ -1,5 +1,5 @@
-import { Session } from 'next-iron-session';
-import { User } from '../models/user';
+import type { Session } from 'iron-session';
+import type { User } from '../models/user';
 
 declare module 'http' {
   export interface IncomingMessage {

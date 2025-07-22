@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
+// Props for the WebhookLogs component
 interface WebhookLogsProps {
   storeName: string;
   token: string | null;
 }
 
+// Webhook log entry interface
 interface WebhookLog {
   id: string;
   type: string;
@@ -15,9 +17,9 @@ interface WebhookLog {
   error?: string;
 }
 
-// Styled Components
+// Styled Components for UI
 const Container = styled.div`
-  background: white;
+  background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -40,7 +42,7 @@ const Title = styled.h2`
 
 const RefreshButton = styled.button`
   background: #007bff;
-  color: white;
+  color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -64,7 +66,7 @@ const RefreshButton = styled.button`
 const LoadingSpinner = styled.div`
   width: 16px;
   height: 16px;
-  border: 2px solid #ffffff;
+  border: 2px solid #fff;
   border-top: 2px solid transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -174,22 +176,30 @@ const LogData = styled.pre`
   color: #333;
 `;
 
-export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
+/**
+ * WebhookLogs component displays a list of webhook logs for a store.
+ */
+const WebhookLogs: React.FC<WebhookLogsProps> = ({ storeName, token }) => {
+  // State for logs, loading status
   const [logs, setLogs] = useState<WebhookLog[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedLog, setSelectedLog] = useState<WebhookLog | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Fetch logs on mount
   useEffect(() => {
     loadLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadLogs = async () => {
+  /**
+   * Loads webhook logs (mocked for now)
+   */
+  const loadLogs = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Simulate loading logs from API
+      // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock data
+
+      // Mocked log data
       const mockLogs: WebhookLog[] = [
         {
           id: '1',
@@ -228,16 +238,20 @@ export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
           error: 'Webhook URL not reachable'
         }
       ];
-      
+
       setLogs(mockLogs);
     } catch (error) {
-      console.error('Error loading logs:', error);
+      // Log error to console
+      console.error('Failed to load webhook logs:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const getTypeLabel = (type: string) => {
+  /**
+   * Returns a human-readable label for a webhook type
+   */
+  const getTypeLabel = (type: string): string => {
     switch (type) {
       case 'order_created': return 'Order Created';
       case 'order_updated': return 'Order Updated';
@@ -247,7 +261,10 @@ export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
     }
   };
 
-  const formatTimestamp = (timestamp: string) => {
+  /**
+   * Formats a timestamp string to a readable date/time
+   */
+  const formatTimestamp = (timestamp: string): string => {
     return new Date(timestamp).toLocaleString('en-US');
   };
 
@@ -262,10 +279,12 @@ export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
       </Header>
 
       <Content>
+        {/* Show empty state if no logs and not loading */}
         {logs.length === 0 && !isLoading ? (
           <EmptyState>No webhook logs found yet.</EmptyState>
         ) : (
           <LogsContainer>
+            {/* Render each log item */}
             {logs.map((log) => (
               <LogItem key={log.id}>
                 <LogHeader>
@@ -279,14 +298,13 @@ export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
                   </LogInfo>
                   <LogTime>{formatTimestamp(log.timestamp)}</LogTime>
                 </LogHeader>
-                
                 <LogBody>
+                  {/* Show error message if present */}
                   {log.error && (
                     <ErrorMessage>
                       Error: {log.error}
                     </ErrorMessage>
                   )}
-                  
                   <LogData>
                     {JSON.stringify(log.data, null, 2)}
                   </LogData>
@@ -298,4 +316,6 @@ export default function WebhookLogs({ storeName, token }: WebhookLogsProps) {
       </Content>
     </Container>
   );
-} 
+};
+
+export default WebhookLogs;

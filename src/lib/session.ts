@@ -1,7 +1,8 @@
 // this file is a wrapper with defaults to be used in both API routes and `getServerSideProps` functions
-import { getIronSession, sealData, unsealData } from 'iron-session';
 import { config } from '@/globals/config';
 import { TOKEN_COOKIE } from '@/globals/constants';
+import { getIronSession } from 'iron-session';
+import { cookies } from 'next/headers';
 
 export interface SessionData {
   merchantId?: string;
@@ -25,48 +26,13 @@ const sessionOptions = {
   },
 };
 
-// For API routes
-export async function getSession(req: any, res: any): Promise<SessionData> {
-  return await getIronSession(req, res, sessionOptions);
+export async function getSession(): Promise<SessionData> {
+  const session = await getIronSession(await cookies(), { password: config.cookiePassword || '', cookieName: TOKEN_COOKIE || '' });
+  return session;
 }
 
-// For App Router
-export async function getSessionFromRequest(request: Request): Promise<SessionData> {
-  const rawCookie = request.headers.get('cookie') || '';
-  const cookiePrefix = `${sessionOptions.cookieName}=`;
-  const sealed = rawCookie.split('; ').find((c) => c.startsWith(cookiePrefix))?.slice(cookiePrefix.length);
-  if (!sealed) return {};
-
-  try {
-    const sessionData = await unsealData(sealed, {
-      password: sessionOptions.password,
-    });
-    return sessionData || {};
-  } catch (e) {
-    console.error('Session decode error', { sealed, error: e });
-    throw e;
-  }
+export async function setSession(data: SessionData) {
+  const session = await getSession();
+  Object.assign(session, data);
+  await session.save(); 
 }
-
-// For App Router response
-export async function setSessionInResponse(response: Response, data: SessionData): Promise<Response> {
-  const sealedData = await sealData(data, sessionOptions);
-  response.headers.set('Set-Cookie', `${sessionOptions.cookieName}=${sealedData}; Path=/; HttpOnly; SameSite=Lax`);
-  return response;
-}
-
-// Legacy wrapper for backward compatibility
-export const withConnectSession = (config: any) => {
-  return (handler: any) => async (req: any, res: any) => {
-    req.session = await getSession(req, res);
-    return handler(req, res);
-  };
-};
-
-export function withSession(handler: any, config: any) {
-  return withConnectSession(config)(handler);
-}
-
-export const fillSession = async (req: any, res: any, config: any) => {
-  req.session = await getSession(req, res);
-};

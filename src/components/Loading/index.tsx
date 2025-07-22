@@ -17,7 +17,7 @@ function Loading() {
 
   return (
     <LoadingWrapper>
-      <div>Lütfen Bekleyin...</div>
+      <div>Please wait...</div>
     </LoadingWrapper>
   );
 }
