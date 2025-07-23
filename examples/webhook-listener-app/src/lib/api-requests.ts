@@ -5,6 +5,8 @@ import { GetTokenWithSignatureApiRequest, GetTokenWithSignatureApiResponse } fro
 import { GetMerchantApiResponse } from '../app/api/ikas/get-merchant/route';
 import { SaveWebhooksApiRequest } from '../app/api/ikas/save-webhook/route';
 import { ListWebhookApiResponse } from '../app/api/ikas/list-webhook/route';
+import { ListSalesChannelApiResponse } from '../app/api/ikas/list-sales-channel/route';
+import { DeleteWebhookApiRequest } from '../app/api/ikas/delete-webhook/route';
 
 export async function makePostRequest<T>({ url, data, token }: { url: string; data?: any; token?: string }) {
   return axios.post<ApiResponseType<T>>(url, data, {
@@ -33,6 +35,8 @@ export const ApiRequests = {
     getMerchant: (token: string) => makeGetRequest<GetMerchantApiResponse>({ url: '/api/ikas/get-merchant', token }),
     saveWebhook: (data: SaveWebhooksApiRequest, token: string) => makePostRequest<any>({ url: '/api/ikas/save-webhook', data, token }),
     listWebhook: (token: string) => makeGetRequest<ListWebhookApiResponse>({ url: '/api/ikas/list-webhook', token }),
+    deleteWebhook: (data: DeleteWebhookApiRequest, token: string) => makePostRequest<any>({ url: '/api/ikas/delete-webhook', data, token }),
+    listSalesChannel: (token: string) => makeGetRequest<ListSalesChannelApiResponse>({ url: '/api/ikas/list-sales-channel', token }),
   },
   oauth: {
     checkForReauthorize: (token: string) => makeGetRequest<CheckForReauthorizeApiResponse>({ url: '/api/oauth/check-for-reauthorize', token }),

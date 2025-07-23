@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Loading from "@/components/Loading";
+import Loading from "@/components/loading";
 import { TokenHelpers } from '../../helpers/token-helpers';
 
 /**

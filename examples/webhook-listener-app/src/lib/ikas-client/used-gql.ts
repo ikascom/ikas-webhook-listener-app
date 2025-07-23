@@ -44,3 +44,22 @@ export const LIST_WEBHOOKS = gql`
     }
   }
 `;
+
+export const LIST_SALES_CHANNELS = gql`
+  query ListSalesChannel {
+    listSalesChannel {
+      createdAt
+      deleted
+      id
+      name
+      type
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_WEBHOOK = gql`
+  mutation DeleteWebhook($scopes: [String!]!) {
+    deleteWebhook(scopes: $scopes)
+  }
+`;

@@ -14,6 +14,16 @@ export enum MerchantSettingsAddressTypeEnum {
   CORPORATE = "CORPORATE",
   INDIVIDUAL = "INDIVIDUAL"
 }
+export enum SalesChannelTypeEnum {
+  ADMIN = "ADMIN",
+  APP = "APP",
+  B2B_STOREFRONT = "B2B_STOREFRONT",
+  FACEBOOK = "FACEBOOK",
+  GOOGLE = "GOOGLE",
+  POS = "POS",
+  STOREFRONT = "STOREFRONT",
+  STOREFRONT_APP = "STOREFRONT_APP"
+}
 export interface AuthorizedApp {
   addedDate: number;
   createdAt?: number;
@@ -78,6 +88,25 @@ export interface MerchantResponse {
   region?: MerchantRegionEnum;
   storeName?: string;
 }
+export interface SalesChannel {
+  createdAt?: number;
+  deleted: boolean;
+  id: string;
+  name: string;
+  paymentGateways?: Array<SalesChannelPaymentGateway>;
+  priceListId?: string;
+  stockLocations?: Array<SalesChannelStockLocation>;
+  type: SalesChannelTypeEnum;
+  updatedAt?: number;
+}
+export interface SalesChannelPaymentGateway {
+  id: string;
+  order: number;
+}
+export interface SalesChannelStockLocation {
+  id: string;
+  order: number;
+}
 export interface Webhook {
   createdAt?: number;
   deleted: boolean;
@@ -131,6 +160,23 @@ export interface ListWebhookQuery {
   updatedAt?: number;
 }>;
 }
+export interface ListSalesChannelQueryVariables {}
+export interface ListSalesChannelQuery {
+  listSalesChannel: Array<{
+  createdAt?: number;
+  deleted: boolean;
+  id: string;
+  name: string;
+  type: SalesChannelTypeEnum;
+  updatedAt?: number;
+}>;
+}
+export interface DeleteWebhookMutationVariables {
+  scopes: string;
+}
+export interface DeleteWebhookMutation {
+  deleteWebhook: boolean;
+}
 
 export class GeneratedQuery {
   client: BaseGraphQLAPIClient<any>;
@@ -180,6 +226,22 @@ export class GeneratedQuery {
     return this.client.query<Partial<ListWebhookQuery>>({ query });
   }
 
+  async listSalesChannel(): Promise<APIResult<Partial<ListSalesChannelQuery>>> {
+    const query = `
+  query ListSalesChannel {
+    listSalesChannel {
+      createdAt
+      deleted
+      id
+      name
+      type
+      updatedAt
+    }
+  }
+`;
+    return this.client.query<Partial<ListSalesChannelQuery>>({ query });
+  }
+
 }
 
 export class GeneratedMutation {
@@ -203,6 +265,15 @@ export class GeneratedMutation {
   }
 `;
     return this.client.mutate<Partial<SaveWebhooksMutation>>({ mutation, variables });
+  }
+
+  async deleteWebhook(variables: DeleteWebhookMutationVariables): Promise<APIResult<Partial<DeleteWebhookMutation>>> {
+    const mutation = `
+  mutation DeleteWebhook($scopes: [String!]!) {
+    deleteWebhook(scopes: $scopes)
+  }
+`;
+    return this.client.mutate<Partial<DeleteWebhookMutation>>({ mutation, variables });
   }
 
 }

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useBaseHomePage } from './hooks/use-base-home-page';
-import Loading from '../components/Loading';
+import Loading from '../components/loading';
 
 export default function Home() {
   useBaseHomePage();
