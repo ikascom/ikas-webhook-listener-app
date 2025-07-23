@@ -496,6 +496,7 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
       loadWebhooks();
       loadSalesChannels();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   /**
@@ -606,7 +607,7 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete this webhook?\n\nEndpoint: ${webhook.endpoint}\nScope: ${webhook.scope}\n\nThis action cannot be undone.`
     );
-    
+
     if (!confirmed) return;
 
     setIsDeleting(webhook.id);
@@ -695,7 +696,7 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
         ) : webhooks.length === 0 ? (
           <EmptyState>
             <EmptyTitle>No Webhooks Found</EmptyTitle>
-            <EmptyText>Click "Add New Webhook" to create your first webhook endpoint.</EmptyText>
+            <EmptyText>Click Add New Webhook to create your first webhook endpoint.</EmptyText>
           </EmptyState>
         ) : (
           <Table>
@@ -720,15 +721,15 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
                     <DateText>{formatDate(webhook.createdAt)}</DateText>
                   </TableCell>
                   <TableCell>
-                    <ActionButton 
-                      variant="edit" 
+                    <ActionButton
+                      variant="edit"
                       onClick={() => handleEditWebhook(webhook)}
                       disabled={isDeleting === webhook.id}
                     >
                       Edit
                     </ActionButton>
-                    <ActionButton 
-                      variant="delete" 
+                    <ActionButton
+                      variant="delete"
                       onClick={() => handleDeleteWebhook(webhook)}
                       disabled={isDeleting === webhook.id}
                     >
@@ -831,8 +832,8 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
                 <CancelButton type="button" onClick={handleCloseModal}>
                   Cancel
                 </CancelButton>
-                <SubmitButton 
-                  type="submit" 
+                <SubmitButton
+                  type="submit"
                   disabled={isSaving || !formData.endpoint || formData.scopes.length === 0}
                 >
                   {isSaving && <LoadingSpinner style={{ width: '16px', height: '16px' }} />}
@@ -847,4 +848,4 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
   );
 };
 
-export default WebhookPage; 
+export default WebhookPage;

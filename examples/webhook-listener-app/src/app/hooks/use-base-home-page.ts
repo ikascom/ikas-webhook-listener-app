@@ -79,5 +79,6 @@ export function useBaseHomePage() {
 
     // No cleanup needed
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
