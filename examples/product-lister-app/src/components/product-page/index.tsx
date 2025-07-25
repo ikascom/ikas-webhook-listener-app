@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { ApiRequests } from '../../lib/api-requests';
-import {Product, CreateProductInput, UpdateProductInput, ProductTypeEnum} from '../../lib/ikas-client/generated/graphql';
+import { Product, CreateProductInput, UpdateProductInput, ProductTypeEnum, CreateProductVariantInput, ProductVariantPriceInput } from '../../lib/ikas-client/generated/graphql';
 
 // Props for ProductPage component
 interface ProductPageProps {
@@ -411,11 +411,18 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Form state
-  const [formData, setFormData] = useState<CreateProductInput | UpdateProductInput>({
+  // Form state - Adding price field
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    type: ProductTypeEnum;
+    price: string;
+    id?: string;
+  }>({
     name: '',
     description: '',
     type: ProductTypeEnum.PHYSICAL,
+    price: '',
   });
 
   // Load products on mount and when token changes
@@ -454,6 +461,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
       name: '',
       description: '',
       type: ProductTypeEnum.PHYSICAL,
+      price: '',
     });
     setIsModalOpen(true);
   };
@@ -468,6 +476,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
       name: product.name,
       description: product.description || '',
       type: ProductTypeEnum.PHYSICAL,
+      price: (product.variants?.[0]?.prices?.[0]?.sellPrice || '').toString(),
     });
     setIsModalOpen(true);
   };
@@ -482,6 +491,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
       name: '',
       description: '',
       type: ProductTypeEnum.PHYSICAL,
+      price: '',
     });
   };
 
@@ -490,16 +500,37 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !formData.name) return;
+    const priceNumber = parseFloat(formData.price);
+    if (!token || !formData.name || !formData.price || priceNumber <= 0 || isNaN(priceNumber)) return;
 
     setIsSaving(true);
     try {
       if (editingProduct) {
-        // Update product
-        await ApiRequests.ikas.updateProduct({ productInput: formData as UpdateProductInput }, token);
+        // Update product - keeping existing structure for now
+        const updateInput: UpdateProductInput = {
+          id: formData.id!,
+          name: formData.name,
+          description: formData.description,
+          type: formData.type,
+        };
+        await ApiRequests.ikas.updateProduct({ productInput: updateInput }, token);
       } else {
-        // Create product
-        await ApiRequests.ikas.createProduct({ productInput: formData as CreateProductInput }, token);
+        // Create product with variants and price
+        const variant: CreateProductVariantInput = {
+          isActive: true,
+          prices: [{
+            sellPrice: priceNumber,
+          } as ProductVariantPriceInput]
+        };
+
+        const createInput: CreateProductInput = {
+          name: formData.name,
+          description: formData.description,
+          type: formData.type,
+          variants: [variant]
+        };
+        
+        await ApiRequests.ikas.createProduct({ productInput: createInput }, token);
       }
       await loadProducts(); // Reload products after saving
       handleCloseModal();
@@ -522,6 +553,19 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  /**
+   * Formats price for display
+   */
+  const formatPrice = (price?: number) => {
+    if (!price && price !== 0) return 'N/A';
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(price);
   };
 
   if (!token) {
@@ -565,6 +609,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
               <TableRow>
                 <TableHeaderCell>Product Name</TableHeaderCell>
                 <TableHeaderCell>Brand</TableHeaderCell>
+                <TableHeaderCell>Price</TableHeaderCell>
                 <TableHeaderCell>Stock</TableHeaderCell>
                 <TableHeaderCell>Actions</TableHeaderCell>
               </TableRow>
@@ -578,6 +623,9 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
                   </TableCell>
                   <TableCell>
                     <StockInfo>{product.brand?.name || 'No Brand'}</StockInfo>
+                  </TableCell>
+                  <TableCell>
+                    <StockInfo>{formatPrice(product.variants?.[0]?.prices?.[0]?.sellPrice)}</StockInfo>
                   </TableCell>
                   <TableCell>
                     <StockInfo>{product.totalStock || 0}</StockInfo>
@@ -633,6 +681,20 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
               </FormGroup>
 
               <FormGroup>
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                  placeholder="Enter product price"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
                 <Label htmlFor="type">Product Type</Label>
                 <Input
                   id="type"
@@ -649,7 +711,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ token, storeName }) => {
                 </CancelButton>
                 <SubmitButton
                   type="submit"
-                  disabled={isSaving || !formData.name}
+                  disabled={isSaving || !formData.name || !formData.price || parseFloat(formData.price) <= 0 || isNaN(parseFloat(formData.price))}
                 >
                   {isSaving && <LoadingSpinner style={{ width: '16px', height: '16px' }} />}
                   {editingProduct ? 'Update' : 'Create'} Product

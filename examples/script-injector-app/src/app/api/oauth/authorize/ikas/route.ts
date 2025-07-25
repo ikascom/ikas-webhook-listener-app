@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     await setSession(session);
 
     // Generate the base OAuth URL for the given store
-    const oauthBaseUrl = OAuthAPI.getOAuthUrl({ storeName,  });
+    const oauthBaseUrl = OAuthAPI.getOAuthUrl({ storeName });
 
     // Construct the full Ikas OAuth authorize URL with required query parameters
     const authorizeUrl = `${oauthBaseUrl}/authorize` +

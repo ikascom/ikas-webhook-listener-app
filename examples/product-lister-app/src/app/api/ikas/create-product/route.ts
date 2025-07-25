@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Parse the request body (NextApiRequest does not have .json(), so use body directly)
     // If using API routes (not app router), body is already parsed
-    const body = await request.json() as CreateProductApiRequest;
+    const body = (await request.json()) as CreateProductApiRequest;
     if (!body || !body.productInput) {
       return NextResponse.json({ error: { statusCode: 400, message: 'Invalid request body' } }, { status: 400 });
     }
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       name: productInput.name,
       description: productInput.description,
       type: productInput.type,
+      variants: productInput.variants,
     };
 
     // Call the Ikas API to create the product
@@ -63,4 +64,4 @@ export async function POST(request: NextRequest) {
     console.error('Error creating product:', error);
     return NextResponse.json({ error: { statusCode: 500, message: 'Failed to create product' } }, { status: 500 });
   }
-} 
+}
