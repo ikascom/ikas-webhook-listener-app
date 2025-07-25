@@ -1,0 +1,54 @@
+{
+  "name": "ikas-script-injector-template",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "codegen": "graphql-codegen --config src/lib/ikas-client/codegen.ts",
+    "build:watch": "tsc --watch"
+  },
+  "packageManager": "pnpm@10.4.1",
+  "dependencies": {
+    "@ikas/admin-api-client": "2.0.8",
+    "@ikas/app-helpers": "^1.0.6",
+    "axios": "^1.10.0",
+    "graphql-request": "^7.0.0",
+    "iron-session": "^8.0.4",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
+    "next": "15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "styled-components": "^6.1.8",
+    "uuid": "^11.1.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@graphql-codegen/cli": "5.0.7",
+    "@graphql-codegen/typescript": "4.1.0",
+    "@graphql-codegen/typescript-graphql-request": "6.3.0",
+    "@graphql-codegen/typescript-operations": "4.6.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "8.30.1",
+    "@typescript-eslint/parser": "8.30.1",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.0",
+    "typescript": "^5"
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "printWidth": 150,
+    "tabWidth": 2,
+    "bracketSpacing": true
+  }
+}
