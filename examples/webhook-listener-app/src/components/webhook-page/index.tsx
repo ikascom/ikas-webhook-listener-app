@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { ApiRequests } from '../../lib/api-requests';
-import { Webhook, WebhookInput, SalesChannel } from '../../lib/ikas-client/generated/graphql';
+import { ApiRequests } from '@/lib/api-requests';
+import { Webhook, WebhookInput, SalesChannel } from '@/lib/ikas-client/generated/graphql';
 
 // Props for WebhookPage component
 interface WebhookPageProps {
@@ -679,7 +679,7 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
       <Container>
         <Header>
           <div>
-            <Title>Webhook Management</Title>
+            <Title>Webhook Management kardeeeş</Title>
             {storeName && <StoreInfo>Store: {storeName}</StoreInfo>}
           </div>
           <AddButton onClick={handleAddWebhook} disabled={isLoading}>

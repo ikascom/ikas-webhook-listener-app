@@ -23,9 +23,7 @@ export function getIkas(token: AuthToken): ikasAdminGraphQLAPIClient<AuthToken> 
  * @param token AuthToken object to check and refresh.
  * @returns An object containing the (possibly refreshed) accessToken and tokenData.
  */
-export async function onCheckToken(
-  token?: AuthToken
-): Promise<{ accessToken: string | undefined; tokenData?: AuthToken }> {
+export async function onCheckToken(token?: AuthToken): Promise<{ accessToken: string | undefined; tokenData?: AuthToken }> {
   try {
     if (!token) {
       // No token provided, return undefined.
@@ -46,15 +44,12 @@ export async function onCheckToken(
         {
           storeName: 'api',
           storeDomain: '.myikas.com',
-        }
+        },
       );
 
       if (response.data) {
         // Calculate new expiration date in ISO format.
-        const newExpireDate = moment()
-          .add(response.data.expires_in, 'seconds')
-          .toDate()
-          .toISOString();
+        const newExpireDate = moment().add(response.data.expires_in, 'seconds').toDate().toISOString();
 
         // Update token fields with refreshed data.
         token.accessToken = response.data.access_token;
@@ -78,3 +73,25 @@ export async function onCheckToken(
     return { accessToken: undefined };
   }
 }
+
+/**
+ * Generates the appropriate OAuth redirect URI for the current environment.
+ * Handles localhost development vs production deployment scenarios.
+ *
+ * @param host - The current request host header
+ * @returns The correct redirect URI for OAuth callback
+ */
+export const getRedirectUri = (host: string) => {
+  // If config uses localhost but request is from different host (e.g., production)
+  if (config.oauth.redirectUri.includes('localhost') && !host.includes('localhost')) {
+    // Replace localhost with actual host for production deployments
+    const redirectUri = new URL(config.oauth.redirectUri);
+    redirectUri.host = host;
+    redirectUri.protocol = 'https';
+    redirectUri.port = '443';
+    return redirectUri.toString();
+  }
+
+  // Use configured redirect URI as-is
+  return config.oauth.redirectUri;
+};

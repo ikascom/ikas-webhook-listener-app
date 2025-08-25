@@ -1,6 +1,6 @@
 import { config } from '@/globals/config';
 import type { ApiResponseType } from '@/globals/constants';
-import { getIkas } from '@/helpers/api-helpers';
+import { getIkas, getRedirectUri } from '@/helpers/api-helpers';
 import { getSession, setSession } from '@/lib/session';
 import { AuthTokenManager } from '@/models/auth-token/manager';
 import { NextRequest } from 'next/server';
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
                 authorizeData: {
                   state: newState,
                   scope: requiredScope,
-                  redirectUri: config.oauth.redirectUri,
+                  redirectUri: getRedirectUri(request.headers.get('host')!),
                 },
               },
             };

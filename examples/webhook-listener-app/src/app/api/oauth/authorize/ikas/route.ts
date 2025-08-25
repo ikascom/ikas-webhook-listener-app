@@ -4,6 +4,7 @@ import { getSession, setSession } from '@/lib/session';
 import { authorizeSchema, validateRequest } from '@/lib/validation';
 import { OAuthAPI } from '@ikas/admin-api-client';
 import { NextRequest, NextResponse } from 'next/server';
+import { getRedirectUri } from '@/helpers/api-helpers';
 
 /**
  * Handles the OAuth authorization initiation for Ikas.
@@ -40,12 +41,12 @@ export async function GET(request: NextRequest) {
     await setSession(session);
 
     // Generate the base OAuth URL for the given store
-    const oauthBaseUrl = OAuthAPI.getOAuthUrl({ storeName });
+    const oauthBaseUrl = OAuthAPI.getOAuthUrl({ storeName, storeDomain: '.myikas.dev' });
 
     // Construct the full Ikas OAuth authorize URL with required query parameters
     const authorizeUrl = `${oauthBaseUrl}/authorize` +
       `?client_id=${encodeURIComponent(config.oauth.clientId!)}` +
-      `&redirect_uri=${encodeURIComponent(config.oauth.redirectUri)}` +
+      `&redirect_uri=${encodeURIComponent(getRedirectUri(request.headers.get('host')!))}` +
       `&scope=${encodeURIComponent(config.oauth.scope)}` +
       `&state=${encodeURIComponent(state)}`;
 

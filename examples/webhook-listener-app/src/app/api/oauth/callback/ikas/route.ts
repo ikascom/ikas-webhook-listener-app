@@ -3,10 +3,10 @@ import { getSession, setSession } from '@/lib/session';
 import { callbackSchema, validateRequest } from '@/lib/validation';
 import { OAuthAPI } from '@ikas/admin-api-client';
 import moment from 'moment';
-import { getIkas } from '../../../../../helpers/api-helpers';
-import { JwtHelpers } from '../../../../../helpers/jwt-helpers';
-import { AuthToken } from '../../../../../models/auth-token';
-import { AuthTokenManager } from '../../../../../models/auth-token/manager';
+import { getIkas, getRedirectUri } from '@/helpers/api-helpers';
+import { JwtHelpers } from '@/helpers/jwt-helpers';
+import { AuthToken } from '@/models/auth-token';
+import { AuthTokenManager } from '@/models/auth-token/manager';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
         code: code as string,
         client_id: config.oauth.clientId!,
         client_secret: config.oauth.clientSecret!,
-        redirect_uri: config.oauth.redirectUri,
+        redirect_uri: getRedirectUri(request.headers.get('host')!),
       },
       {
         storeName: (session.storeName || 'api') as string,

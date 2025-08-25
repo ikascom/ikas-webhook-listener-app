@@ -1,7 +1,7 @@
 import { MerchantResponse } from '@/lib/ikas-client/generated/graphql';
-import { getIkas } from '../../../../helpers/api-helpers';
-import { getUserFromRequest } from '../../../../lib/auth-helpers';
-import { AuthTokenManager } from '../../../../models/auth-token/manager';
+import { getIkas } from '@/helpers/api-helpers';
+import { getUserFromRequest } from '@/lib/auth-helpers';
+import { AuthTokenManager } from '@/models/auth-token/manager';
 import { NextRequest, NextResponse } from 'next/server';
 
 export type GetMerchantApiResponse = {

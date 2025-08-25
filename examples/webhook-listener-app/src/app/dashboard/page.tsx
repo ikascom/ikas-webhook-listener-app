@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import { TokenHelpers } from '../../helpers/token-helpers';
-import { ApiRequests } from '../../lib/api-requests';
-import WebhookPage from '../../components/webhook-page';
+import { TokenHelpers } from '@/helpers/token-helpers';
+import { ApiRequests } from '@/lib/api-requests';
+import WebhookPage from '@/components/webhook-page';
 
 /**
  * DashboardPage

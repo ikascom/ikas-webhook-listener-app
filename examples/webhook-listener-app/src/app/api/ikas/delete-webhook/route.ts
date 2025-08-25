@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIkas } from '../../../../helpers/api-helpers';
-import { getUserFromRequest } from '../../../../lib/auth-helpers';
-import { AuthTokenManager } from '../../../../models/auth-token/manager';
+import { getIkas } from '@/helpers/api-helpers';
+import { getUserFromRequest } from '@/lib/auth-helpers';
+import { AuthTokenManager } from '@/models/auth-token/manager';
 
 // Type for the expected request body
 export type DeleteWebhookApiRequest = {

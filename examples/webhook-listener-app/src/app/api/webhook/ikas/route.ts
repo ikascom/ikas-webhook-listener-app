@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { config } from '../../../../globals/config';
-import { WebhookManager } from '../../../../models/webhook/manager';
+import { config } from '@/globals/config';
+import { WebhookManager } from '@/models/webhook/manager';
 import { IkasWebhook } from '@ikas/admin-api-client';
-import { ikasWebhookSchema, validateRequest, validateWebhookSignature } from '../../../../lib/validation';
+import { ikasWebhookSchema, validateRequest, validateWebhookSignature } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {

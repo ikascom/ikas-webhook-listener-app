@@ -1,6 +1,6 @@
-import { getIkas } from '../../../../helpers/api-helpers';
-import { getUserFromRequest } from '../../../../lib/auth-helpers';
-import { AuthTokenManager } from '../../../../models/auth-token/manager';
+import { getIkas } from '@/helpers/api-helpers';
+import { getUserFromRequest } from '@/lib/auth-helpers';
+import { AuthTokenManager } from '@/models/auth-token/manager';
 import { SalesChannel } from '@/lib/ikas-client/generated/graphql';
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';

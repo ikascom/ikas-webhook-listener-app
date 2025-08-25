@@ -3,7 +3,7 @@
 import { AppBridgeHelper } from '@ikas/app-helpers';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { TokenHelpers } from '../../../helpers/token-helpers';
+import { TokenHelpers } from '@/helpers/token-helpers';
 
 interface TokenData {
   storeName: string;

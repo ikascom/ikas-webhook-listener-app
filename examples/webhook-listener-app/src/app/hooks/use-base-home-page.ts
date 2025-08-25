@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { AppBridgeHelper } from '@ikas/app-helpers';
 import { useRouter } from 'next/navigation';
 
-import { TokenHelpers } from '../../helpers/token-helpers';
-import { CheckForReauthorizeApiResponse } from '../api/oauth/check-for-reauthorize/route';
-import { ApiRequests } from '../../lib/api-requests';
+import { TokenHelpers } from '@/helpers/token-helpers';
+import { CheckForReauthorizeApiResponse } from '@/app/api/oauth/check-for-reauthorize/route';
+import { ApiRequests } from '@/lib/api-requests';
 
 /**
  * useBaseHomePage
