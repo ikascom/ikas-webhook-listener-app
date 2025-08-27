@@ -48,6 +48,8 @@ export async function GET(request: NextRequest) {
       },
       {
         storeName: (session.storeName || 'api') as string,
+        storeDomain: '.myikas.dev',
+    
       },
     );
 

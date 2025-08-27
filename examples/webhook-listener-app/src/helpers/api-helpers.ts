@@ -43,7 +43,7 @@ export async function onCheckToken(token?: AuthToken): Promise<{ accessToken: st
         },
         {
           storeName: 'api',
-          storeDomain: '.myikas.com',
+          storeDomain: '.myikas.dev',
         },
       );
 
