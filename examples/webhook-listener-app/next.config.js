@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: ['*.trycloudflare.com'],
   // Webpack configuration
   webpack: (config) => {
     // Disable fs module on client side (required for Vercel)

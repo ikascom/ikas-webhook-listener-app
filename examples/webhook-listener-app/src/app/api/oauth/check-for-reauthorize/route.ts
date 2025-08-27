@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     // Check if the session has an authorizedAppId (i.e., user is authorized)
     if (session.authorizedAppId) {
       // Retrieve the stored auth token for this app
-      const authToken = AuthTokenManager.get(session.authorizedAppId);
+      const authToken = await AuthTokenManager.get(session.authorizedAppId);
 
       if (authToken) {
         // Create an ikas client with the current token

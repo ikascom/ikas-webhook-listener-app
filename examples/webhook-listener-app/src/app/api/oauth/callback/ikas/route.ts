@@ -136,13 +136,13 @@ export async function GET(request: NextRequest) {
     )}/authorized-app/${authorizedAppId}`;
 
     // Build the callback URL with token and redirect info
-    const callbackUrl = new URL('/callback', url.origin);
-    callbackUrl.searchParams.set('token', jwtToken);
-    callbackUrl.searchParams.set('redirectUrl', redirectUrl);
-    callbackUrl.searchParams.set('authorizedAppId', authorizedAppId);
+    const callbackUrl = new URLSearchParams();
+    callbackUrl.set('token', jwtToken);
+    callbackUrl.set('redirectUrl', redirectUrl);
+    callbackUrl.set('authorizedAppId', authorizedAppId);
 
     // Redirect the user to the callback URL
-    return NextResponse.redirect(callbackUrl.toString());
+    return NextResponse.redirect(new URL(`/callback?${callbackUrl.toString()}`, getRedirectUri(request.headers.get('host')!)));
   } catch (error) {
     // Log and return error response
     console.error('Callback error:', error);

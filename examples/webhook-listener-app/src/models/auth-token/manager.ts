@@ -1,22 +1,39 @@
 import { AuthToken } from './index';
-import fs from 'fs/promises';
-import path from 'path';
-
-// Load dummy tokens from local JSON file (for development/testing purposes)
-const dummyTokens: AuthToken[] = require('./dummy-tokens.json');
+import { prisma } from '@/lib/prisma';
 
 /**
  * AuthTokenManager provides methods to manage AuthTokens.
  * This implementation uses a local JSON file for storage (for development only).
  */
 export class AuthTokenManager {
+  private static toModel(db: any): AuthToken {
+    return {
+      id: db.id,
+      merchantId: db.merchantId,
+      authorizedAppId: db.authorizedAppId ?? undefined,
+      salesChannelId: db.salesChannelId ?? null,
+      type: db.type ?? undefined,
+      createdAt: db.createdAt ? new Date(db.createdAt).toISOString() : undefined,
+      updatedAt: db.updatedAt ? new Date(db.updatedAt).toISOString() : undefined,
+      deleted: db.deleted ?? false,
+      accessToken: db.accessToken,
+      tokenType: db.tokenType,
+      expiresIn: db.expiresIn,
+      expireDate: new Date(db.expireDate).toISOString(),
+      refreshToken: db.refreshToken,
+      scope: db.scope ?? undefined,
+    };
+  }
   /**
    * Retrieve an AuthToken by its authorizedAppId.
    * @param authorizedAppId - The ID of the authorized app.
    * @returns The AuthToken if found, otherwise undefined.
    */
-  static get(authorizedAppId: string): AuthToken | undefined {
-    return dummyTokens.find((token: AuthToken) => token.authorizedAppId === authorizedAppId);
+  static async get(authorizedAppId: string): Promise<AuthToken | undefined> {
+    const token = await prisma.authToken.findUnique({
+      where: { authorizedAppId },
+    });
+    return token ? this.toModel(token) : undefined;
   }
 
   /**
@@ -25,25 +42,35 @@ export class AuthTokenManager {
    * @returns The stored AuthToken.
    */
   static async put(token: AuthToken): Promise<AuthToken> {
-    const tokensPath = path.resolve(__dirname, 'dummy-tokens.json');
-    let tokens: AuthToken[] = [];
-    try {
-      // Read existing tokens from file
-      const data = await fs.readFile(tokensPath, 'utf-8');
-      tokens = JSON.parse(data);
-    } catch (e) {
-      // If file does not exist, start with an empty array
-      tokens = [];
-    }
-
-    // Check if token already exists
-    const existing = tokens.find(t => t.authorizedAppId === token.authorizedAppId);
-    if (!existing) {
-      tokens.push(token);
-      // Write updated tokens array to file
-      await fs.writeFile(tokensPath, JSON.stringify(tokens, null, 2));
-    }
-    return token;
+    const upserted = await prisma.authToken.upsert({
+      where: { id: token.id },
+      update: {
+        merchantId: token.merchantId,
+        salesChannelId: token.salesChannelId || undefined,
+        type: token.type,
+        deleted: token.deleted ?? false,
+        accessToken: token.accessToken,
+        tokenType: token.tokenType,
+        expiresIn: token.expiresIn,
+        expireDate: new Date(token.expireDate),
+        refreshToken: token.refreshToken,
+        scope: token.scope,
+      },
+      create: {
+        id: token.id,
+        authorizedAppId: token.authorizedAppId,
+        merchantId: token.merchantId,
+        salesChannelId: token.salesChannelId || undefined,
+        type: token.type,
+        accessToken: token.accessToken,
+        tokenType: token.tokenType,
+        expiresIn: token.expiresIn,
+        expireDate: new Date(token.expireDate),
+        refreshToken: token.refreshToken,
+        scope: token.scope,
+      },
+    });
+    return this.toModel(upserted);
   }
 
   /**
@@ -52,32 +79,22 @@ export class AuthTokenManager {
    * @throws Error if the token is not found.
    */
   static async delete(authorizedAppId: string): Promise<void> {
-    const tokensPath = path.resolve(__dirname, 'dummy-tokens.json');
-    let tokens: AuthToken[] = [];
-    try {
-      // Read existing tokens from file
-      const data = await fs.readFile(tokensPath, 'utf-8');
-      tokens = JSON.parse(data);
-    } catch (e) {
-      // If file does not exist, throw error
+    const existing = await prisma.authToken.findUnique({ where: { authorizedAppId } });
+    if (!existing) {
       throw new Error('Token not found');
     }
-
-    const tokenIndex = tokens.findIndex(t => t.authorizedAppId === authorizedAppId);
-    if (tokenIndex !== -1) {
-      tokens[tokenIndex].deleted = true;
-      // Write updated tokens array to file
-      await fs.writeFile(tokensPath, JSON.stringify(tokens, null, 2));
-    } else {
-      throw new Error('Token not found');
-    }
+    await prisma.authToken.update({
+      where: { authorizedAppId },
+      data: { deleted: true },
+    });
   }
 
   /**
    * List all AuthTokens.
    * @returns Array of AuthTokens.
    */
-  static list(): AuthToken[] {
-    return dummyTokens;
+  static async list(): Promise<AuthToken[]> {
+    const tokens = await prisma.authToken.findMany();
+    return tokens.map(t => this.toModel(t));
   }
 }

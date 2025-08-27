@@ -25,7 +25,7 @@ export async function GET(request: NextRequest,) {
     }
 
     // Retrieve the auth token for the user's authorized app
-    const authToken = AuthTokenManager.get(user.authorizedAppId);
+    const authToken = await AuthTokenManager.get(user.authorizedAppId);
     if (!authToken) {
       // Auth token not found for the user
       return NextResponse.json({ error: { statusCode: 404, message: 'Auth token not found' } }, { status: 404 });
