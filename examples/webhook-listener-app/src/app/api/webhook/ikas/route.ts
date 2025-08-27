@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/globals/config';
-import { WebhookManager } from '@/models/webhook/manager';
 import { IkasWebhook } from '@ikas/admin-api-client';
-import { ikasWebhookSchema, validateRequest, validateWebhookSignature } from '@/lib/validation';
+import { ikasWebhookSchema, validateRequest, validateWebhookSignature, } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
     // Get webhook data from request body
-    const webhookData = await request.json();
-    const body = JSON.stringify(webhookData);
+    const webhookData: IkasWebhook = await request.json();
 
     // Validate request data structure
     const validation = validateRequest(ikasWebhookSchema, webhookData);
@@ -26,20 +24,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ statusCode: 500, message: 'Server configuration error' }, { status: 500 });
     }
 
-    if (!validateWebhookSignature(body, webhook.signature, clientSecret)) {
+    if (!validateWebhookSignature(webhookData.data, webhook.signature, clientSecret)) {
       console.error('Invalid webhook signature for webhook:', webhook.id);
       return NextResponse.json({ statusCode: 401, message: 'Invalid webhook signature' }, { status: 401 });
     }
 
-    console.log('Received valid webhook:', {
+    console.log('Received valid webhook:', JSON.stringify({
       id: webhook.id,
       scope: webhook.scope,
       merchantId: webhook.merchantId,
-      data: JSON.stringify(webhook.data),
-    });
+      data: JSON.parse(webhook.data),
+    }, null, 2));
 
-    // Process the webhook
-    await WebhookManager.handleIkasWebhook(webhook as IkasWebhook);
 
     return NextResponse.json({ success: true, message: 'Webhook processed successfully' }, { status: 200 });
   } catch (error: any) {

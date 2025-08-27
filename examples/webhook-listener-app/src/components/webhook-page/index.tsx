@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { ApiRequests } from '@/lib/api-requests';
 import { Webhook, WebhookInput, SalesChannel } from '@/lib/ikas-client/generated/graphql';
+import { WebhookScope } from '@ikas/admin-api-client';
 
 // Props for WebhookPage component
 interface WebhookPageProps {
@@ -458,17 +459,7 @@ const CancelButton = styled.button`
 `;
 
 // Available webhook scopes
-const WEBHOOK_SCOPES = [
-  'order_created',
-  'order_updated',
-  'order_deleted',
-  'product_created',
-  'product_updated',
-  'product_deleted',
-  'customer_created',
-  'customer_updated',
-  'customer_deleted',
-];
+const WEBHOOK_SCOPES = Object.values(WebhookScope);
 
 /**
  * WebhookPage component for managing webhooks with table format
