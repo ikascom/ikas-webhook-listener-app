@@ -52,7 +52,7 @@ Quality gates:
 - Run `pnpm codegen` when `graphql-requests.ts` changes.
 - Ensure type-safety and linter cleanliness before committing.
 - Reject PRs that introduce raw GraphQL usage outside `graphql-requests.ts`.
+- Keep naming consistent with `ikas` brand and command patterns.
 
 Notes:
 - Prefer `ApiRequests` in `src/lib/api-requests.ts` to bridge frontend to backend endpoints.
-- Keep naming consistent with `ikas` brand and command patterns.
