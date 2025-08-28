@@ -1,6 +1,6 @@
 import { config } from '@/globals/config';
 import { getSession, setSession } from '@/lib/session';
-import { callbackSchema, validateRequest } from '@/lib/validation';
+import { validateRequest } from '@/lib/validation';
 import { OAuthAPI } from '@ikas/admin-api-client';
 import moment from 'moment';
 import { getIkas, getRedirectUri } from '@/helpers/api-helpers';
@@ -8,6 +8,12 @@ import { JwtHelpers } from '@/helpers/jwt-helpers';
 import { AuthToken } from '@/models/auth-token';
 import { AuthTokenManager } from '@/models/auth-token/manager';
 import { NextRequest, NextResponse } from 'next/server';
+import z from 'zod';
+
+const callbackSchema = z.object({
+  code: z.string().min(1, 'Authorization code is required'),
+  state: z.string().optional(),
+});
 
 /**
  * Handles the OAuth callback for Ikas.
@@ -49,7 +55,6 @@ export async function GET(request: NextRequest) {
       {
         storeName: (session.storeName || 'api') as string,
         storeDomain: '.myikas.dev',
-    
       },
     );
 
@@ -73,10 +78,7 @@ export async function GET(request: NextRequest) {
     const ikas = getIkas(tokenTemp as AuthToken);
 
     // Fetch merchant and authorized app details
-    const [merchantResponse, authorizedAppResponse] = await Promise.all([
-      ikas.queries.getMerchant(),
-      ikas.queries.getAuthorizedApp(),
-    ]);
+    const [merchantResponse, authorizedAppResponse] = await Promise.all([ikas.queries.getMerchant(), ikas.queries.getAuthorizedApp()]);
 
     // Validate responses
     if (
@@ -87,18 +89,18 @@ export async function GET(request: NextRequest) {
       !authorizedAppResponse.data.getAuthorizedApp ||
       !merchantResponse.data.getMerchant
     ) {
-      return NextResponse.json({
-        error: { statusCode: 403, message: 'Unable to retrieve merchant or authorized app' },
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: { statusCode: 403, message: 'Unable to retrieve merchant or authorized app' },
+        },
+        { status: 403 },
+      );
     }
 
     // Extract necessary IDs and calculate token expiration date
     const authorizedAppId = authorizedAppResponse.data.getAuthorizedApp.id!;
     const merchantId = merchantResponse.data.getMerchant.id!;
-    const expireDate = moment()
-      .add(tokenResponse.data.expires_in, 'seconds')
-      .toDate()
-      .toISOString();
+    const expireDate = moment().add(tokenResponse.data.expires_in, 'seconds').toDate().toISOString();
 
     // Build the final AuthToken object
     const token: AuthToken = {
@@ -123,11 +125,7 @@ export async function GET(request: NextRequest) {
     await setSession(session);
 
     // Create a JWT for the merchant and authorized app
-    const jwtToken = JwtHelpers.createToken(
-      merchantResponse.data.getMerchant.storeName!,
-      merchantId,
-      authorizedAppId,
-    );
+    const jwtToken = JwtHelpers.createToken(merchantId, authorizedAppId);
 
     // Build the redirect URL for the admin panel
     const redirectUrl = `${config.adminUrl!.replace(

@@ -1,12 +1,10 @@
 import axios from 'axios';
-import { ApiResponseType } from '../globals/constants';
-import { CheckForReauthorizeApiResponse } from '../app/api/oauth/check-for-reauthorize/route';
-import { GetTokenWithSignatureApiRequest, GetTokenWithSignatureApiResponse } from '../app/api/oauth/get-token-with-signature/route';
-import { GetMerchantApiResponse } from '../app/api/ikas/get-merchant/route';
-import { SaveWebhooksApiRequest } from '../app/api/ikas/save-webhook/route';
-import { ListWebhookApiResponse } from '../app/api/ikas/list-webhook/route';
-import { ListSalesChannelApiResponse } from '../app/api/ikas/list-sales-channel/route';
 import { DeleteWebhookApiRequest } from '../app/api/ikas/delete-webhook/route';
+import { GetMerchantApiResponse } from '../app/api/ikas/get-merchant/route';
+import { ListSalesChannelApiResponse } from '../app/api/ikas/list-sales-channel/route';
+import { ListWebhookApiResponse } from '../app/api/ikas/list-webhook/route';
+import { SaveWebhooksApiRequest } from '../app/api/ikas/save-webhook/route';
+import { ApiResponseType } from '../globals/constants';
 
 export async function makePostRequest<T>({ url, data, token }: { url: string; data?: any; token?: string }) {
   return axios.post<ApiResponseType<T>>(url, data, {
@@ -38,9 +36,4 @@ export const ApiRequests = {
     deleteWebhook: (data: DeleteWebhookApiRequest, token: string) => makePostRequest<any>({ url: '/api/ikas/delete-webhook', data, token }),
     listSalesChannel: (token: string) => makeGetRequest<ListSalesChannelApiResponse>({ url: '/api/ikas/list-sales-channel', token }),
   },
-  oauth: {
-    checkForReauthorize: (token: string) => makeGetRequest<CheckForReauthorizeApiResponse>({ url: '/api/oauth/check-for-reauthorize', token }),
-  },
-  getTokenWithSignature: (data: GetTokenWithSignatureApiRequest) =>
-    makePostRequest<GetTokenWithSignatureApiResponse>({ url: '/api/oauth/get-token-with-signature', data }),
 };

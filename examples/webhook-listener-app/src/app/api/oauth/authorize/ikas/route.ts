@@ -1,10 +1,15 @@
-
 import { config } from '@/globals/config';
+import { getRedirectUri } from '@/helpers/api-helpers';
 import { getSession, setSession } from '@/lib/session';
-import { authorizeSchema, validateRequest } from '@/lib/validation';
+import { validateRequest } from '@/lib/validation';
 import { OAuthAPI } from '@ikas/admin-api-client';
 import { NextRequest, NextResponse } from 'next/server';
-import { getRedirectUri } from '@/helpers/api-helpers';
+import z from 'zod';
+
+// Validation schemas
+const authorizeSchema = z.object({
+  storeName: z.string().min(1, 'storeName is required'),
+});
 
 /**
  * Handles the OAuth authorization initiation for Ikas.
@@ -44,7 +49,8 @@ export async function GET(request: NextRequest) {
     const oauthBaseUrl = OAuthAPI.getOAuthUrl({ storeName, storeDomain: '.myikas.dev' });
 
     // Construct the full Ikas OAuth authorize URL with required query parameters
-    const authorizeUrl = `${oauthBaseUrl}/authorize` +
+    const authorizeUrl =
+      `${oauthBaseUrl}/authorize` +
       `?client_id=${encodeURIComponent(config.oauth.clientId!)}` +
       `&redirect_uri=${encodeURIComponent(getRedirectUri(request.headers.get('host')!))}` +
       `&scope=${encodeURIComponent(config.oauth.scope)}` +

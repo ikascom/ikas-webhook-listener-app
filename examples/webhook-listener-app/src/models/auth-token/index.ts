@@ -1,4 +1,3 @@
-
 export interface AuthToken {
   id: string;
   merchantId: string;
@@ -16,19 +15,3 @@ export interface AuthToken {
   refreshToken: string;
   scope?: string;
 }
-
-export function getToken(token: AuthToken): AuthToken {
-  return {
-    accessToken: token.accessToken,
-    authorizedAppId: token.authorizedAppId,
-    salesChannelId: token.salesChannelId || null,
-    expireDate: token.expireDate,
-    expiresIn: token.expiresIn,
-    merchantId: token.merchantId,
-    refreshToken: token.refreshToken,
-    scope: token.scope,
-    tokenType: token.tokenType,
-    type: '',
-    id: token.id,
-  };
-} 

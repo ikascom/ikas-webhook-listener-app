@@ -14,18 +14,6 @@ export interface SessionData {
   [key: string]: any;
 }
 
-const sessionOptions = {
-  password: config.cookiePassword || '',
-  cookieName: TOKEN_COOKIE || '',
-  cookieOptions: {
-    httpOnly: true,
-    sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
-    maxAge: 60 * 60 * 24 * 1000, // 1 day
-    path: '/',
-    secure: process.env.NODE_ENV === 'production',
-  },
-};
-
 export async function getSession(): Promise<SessionData> {
   const session = await getIronSession(await cookies(), { password: config.cookiePassword || '', cookieName: TOKEN_COOKIE || '' });
   return session;
@@ -34,5 +22,5 @@ export async function getSession(): Promise<SessionData> {
 export async function setSession(data: SessionData) {
   const session = await getSession();
   Object.assign(session, data);
-  await session.save(); 
+  await session.save();
 }

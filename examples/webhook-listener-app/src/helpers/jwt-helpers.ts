@@ -14,6 +14,7 @@ export class JwtHelpers {
     try {
       return verify(token, process.env.CLIENT_SECRET || '', {}) as JwtPayload;
     } catch (e) {
+      console.error('Error verifying token:', e);
       return;
     }
   }
@@ -21,11 +22,10 @@ export class JwtHelpers {
   /**
    * This api returns new JWT Token that contains same data as ikas created.
    *
-   * @param storeName Slug of ikas store <slug>.myikas.com
    * @param merchantId Id of the merchant's store
    * @param authorizedAppId Id of the app which is unique per store and per installation
    */
-  static createToken(storeName: string, merchantId: string, authorizedAppId: string) {
+  static createToken(merchantId: string, authorizedAppId: string) {
     return sign({}, process.env.CLIENT_SECRET || '', {
       expiresIn: '4h', // 4 Hours
       algorithm: 'HS256',

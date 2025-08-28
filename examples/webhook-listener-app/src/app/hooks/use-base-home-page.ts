@@ -1,84 +1,107 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { AppBridgeHelper } from '@ikas/app-helpers';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { TokenHelpers } from '@/helpers/token-helpers';
-import { CheckForReauthorizeApiResponse } from '@/app/api/oauth/check-for-reauthorize/route';
-import { ApiRequests } from '@/lib/api-requests';
 
 /**
- * useBaseHomePage
- * - Handles the initial authentication and authorization flow for the app.
- * - Checks for token presence and validity, and redirects as needed.
- * - Handles both internal (iFrame) and external (direct) app loading scenarios.
+ * Custom hook for managing the base home page authentication and routing logic.
+ * 
+ * This hook handles the initial authentication flow for the application by:
+ * - Checking for existing valid tokens in both iFrame and direct access contexts
+ * - Managing OAuth authorization redirects for new users
+ * - Routing users to appropriate pages based on their authentication status
+ * - Handling both internal (iFrame within iKas dashboard) and external (direct browser) access scenarios
+ * 
+ * @returns An object containing the loading state
  */
 export function useBaseHomePage() {
+  // Track loading state during authentication flow
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-
-
     /**
-     * Handles the authentication and authorization logic.
+     * Initializes the authentication and authorization flow.
+     * 
+     * This function orchestrates the entire authentication process:
+     * 1. Closes any existing iKas AppBridge loader
+     * 2. Attempts to retrieve existing token from iFrame context
+     * 3. Routes to dashboard if valid token exists
+     * 4. Handles OAuth flow initiation for external access
+     * 5. Redirects to authorization page for missing tokens
      */
-    const initialize = async () => {
+    const initializeAuthFlow = async () => {
       try {
-        // Close any existing loader in the iKas AppBridge
+        // Close any existing loader in the iKas AppBridge to prevent UI conflicts
         AppBridgeHelper.closeLoader();
 
-        // Parse query parameters from the URL
-        const params = new URLSearchParams(window.location.search);
+        // Attempt to retrieve token from iFrame context (when app runs inside iKas dashboard)
+        const existingToken = await TokenHelpers.getTokenForIframeApp();
 
-        // Try to get token from iFrame (internal) context
-        let token = await TokenHelpers.getTokenForIframeApp(router);
-
-        // Flag to determine if app is loaded inside iKas Dashboard
-        let isInternal = Boolean(token);
-
-        // If not internal, try to get token from external context (query params)
-        if (!token) {
-          token = await TokenHelpers.getTokenForExternalApp(router, params);
+        if (existingToken) {
+          // Valid token found - user is already authenticated, proceed to main application
+          router.push('/dashboard');
+          return;
         }
 
-        if (token) {
-          // Check if re-authorization is required
-          const response = await ApiRequests.oauth.checkForReauthorize(token);
-          const data: CheckForReauthorizeApiResponse | undefined = response.data?.data;
+        // No valid token found - need to handle authorization flow
+        await handleAuthorizationFlow();
 
-          if (data?.required) {
-            if (isInternal) {
-              // If loaded inside iKas Dashboard, trigger re-authorization via AppBridge
-              AppBridgeHelper.reAuthorizeApp(data.authorizeData!);
-            } else {
-              // If external, redirect to authorization endpoint
-              window.location.replace(`/api/oauth/authorize/ikas?storeName=${params.get('storeName')}`);
-              throw new Error('Authorization required');
-            }
-          } else {
-            // Token is valid and no re-authorization needed, go to dashboard
-            await router.push('/dashboard');
-          }
-        } else {
-          // No token found, redirect to store authorization page
-          await router.push('/authorize-store');
-        }
       } catch (error) {
-        // Optionally log error for debugging
-        // console.error('Error during base home page initialization:', error);
+        console.error('Error during base home page initialization:', error);
+        
+        // Fallback to authorization page on any unexpected errors
+        router.push('/authorize-store');
       } finally {
+        // Always reset loading state when initialization completes
         setIsLoading(false);
       }
     };
-    // Prevent running the effect if already loading
-    if (isLoading) return;
-    setIsLoading(true);
-    initialize();
 
-    // No cleanup needed
+    /**
+     * Handles the authorization flow when no valid token is present.
+     * 
+     * Determines the appropriate authorization path based on:
+     * - Whether the app is running in an iFrame (internal) or standalone (external)
+     * - Presence of store name in URL parameters for direct OAuth flow
+     */
+    const handleAuthorizationFlow = async () => {
+      // Check if app is running outside of iFrame (direct browser access)
+      if (window.self === window.top) {
+        // External access - check for storeName parameter to initiate OAuth
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeName = urlParams.get('storeName');
+
+        if (storeName) {
+          // Store name provided - redirect directly to OAuth authorization endpoint
+          window.location.replace(`/api/oauth/authorize/ikas?storeName=${storeName}`);
+          return;
+        }
+      }
+
+      // Either running in iFrame or no storeName provided - redirect to manual authorization page
+      router.push('/authorize-store');
+    };
+
+    // Prevent multiple simultaneous initialization attempts
+    if (isLoading) {
+      return;
+    }
+
+    // Set loading state and begin initialization
+    setIsLoading(true);
+    initializeAuthFlow();
+
+    // No cleanup required - all operations are async and self-contained
     return () => {};
+    
+    // Dependencies intentionally minimal - only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Return loading state for consuming components
+  return { isLoading };
 }

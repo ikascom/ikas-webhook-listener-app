@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import { TokenHelpers } from '@/helpers/token-helpers';
 import { ApiRequests } from '@/lib/api-requests';
@@ -11,7 +10,6 @@ import WebhookPage from '@/components/webhook-page';
  * - Main dashboard component that displays webhook management interface
  */
 export default function DashboardPage() {
-  const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [storeName, setStoreName] = useState('');
 
@@ -34,7 +32,7 @@ export default function DashboardPage() {
    */
   const initializeDashboard = useCallback(async () => {
     try {
-      const fetchedToken = await TokenHelpers.getTokenForIframeApp(router);
+      const fetchedToken = await TokenHelpers.getTokenForIframeApp();
       setToken(fetchedToken || null);
 
       if (fetchedToken) {
@@ -43,7 +41,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error initializing dashboard:', error);
     }
-  }, [router, fetchStoreName]);
+  }, [fetchStoreName]);
 
   // Run initialization on mount
   useEffect(() => {

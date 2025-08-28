@@ -507,7 +507,6 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
     } finally {
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   /**
@@ -527,7 +526,6 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
     } finally {
       setIsLoadingSalesChannels(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   /**

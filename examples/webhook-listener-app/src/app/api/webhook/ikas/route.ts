@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/globals/config';
 import { IkasWebhook } from '@ikas/admin-api-client';
-import { ikasWebhookSchema, validateRequest, validateWebhookSignature, } from '@/lib/validation';
+import { validateRequest, validateWebhookSignature, } from '@/lib/validation';
+import z from 'zod';
+
+const ikasWebhookSchema = z.object({
+  id: z.string().min(1, 'id is required'),
+  createdAt: z.string().min(1, 'createdAt is required'),
+  scope: z.string().min(1, 'scope is required'),
+  merchantId: z.string().min(1, 'merchantId is required'),
+  signature: z.string().min(1, 'signature is required'),
+  data: z.string(),
+  authorizedAppId: z.string().min(1, 'authorizedAppId is required'),
+});
 
 export async function POST(request: NextRequest) {
   try {
