@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
     if (webhookResponse.isSuccess && webhookResponse.data) {
       return NextResponse.json({ data: { webhook: webhookResponse.data.saveWebhooks } });
     } else {
+      console.error('Failed to save webhook:', webhookResponse.errors);
       return NextResponse.json({ error: { statusCode: 400, message: 'Failed to save webhook' } }, { status: 400 });
     }
   } catch (error) {

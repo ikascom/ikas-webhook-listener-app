@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
 import { ApiRequests } from '@/lib/api-requests';
 import { Webhook, WebhookInput, SalesChannel } from '@/lib/ikas-client/generated/graphql';
 import { WebhookScope } from '@ikas/admin-api-client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 // Props for WebhookPage component
 interface WebhookPageProps {
@@ -10,453 +15,13 @@ interface WebhookPageProps {
   storeName?: string;
 }
 
-// Styled Components
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-  background: #fff;
-  min-height: 100vh;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f0f0f0;
-`;
-
-const Title = styled.h1`
-  margin: 0;
-  color: #1a1a1a;
-  font-size: 28px;
-  font-weight: 700;
-`;
-
-const StoreInfo = styled.div`
-  color: #666;
-  font-size: 14px;
-`;
-
-const AddButton = styled.button`
-  background: #28a745;
-  color: #fff;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
-
-  &:hover {
-    background: #218838;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-  }
-
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const LoadingSpinner = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-const LoadingText = styled.div`
-  font-size: 16px;
-  color: #666;
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 80px 40px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 2px dashed #dee2e6;
-`;
-
-const EmptyTitle = styled.h3`
-  margin: 0 0 12px 0;
-  color: #495057;
-  font-size: 20px;
-`;
-
-const EmptyText = styled.p`
-  margin: 0;
-  color: #6c757d;
-  font-size: 16px;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const TableHeader = styled.thead`
-  background: #f8f9fa;
-`;
-
-const TableRow = styled.tr`
-  &:nth-child(even) {
-    background: #f8f9fa;
-  }
-
-  &:hover {
-    background: #e3f2fd;
-  }
-`;
-
-const TableHeaderCell = styled.th`
-  padding: 16px;
-  text-align: left;
-  font-weight: 600;
-  color: #495057;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #dee2e6;
-`;
-
-const TableCell = styled.td`
-  padding: 16px;
-  border-bottom: 1px solid #dee2e6;
-  vertical-align: middle;
-`;
-
-const WebhookUrl = styled.div`
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  color: #0066cc;
-  word-break: break-all;
-  max-width: 300px;
-`;
-
-const ScopeTag = styled.span`
-  display: inline-block;
-  padding: 4px 8px;
-  background: #e3f2fd;
-  color: #1976d2;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  margin: 2px;
-`;
-
-const DateText = styled.div`
-  font-size: 13px;
-  color: #666;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-`;
-
-const ActionButton = styled.button<{ variant?: 'edit' | 'delete' }>`
-  padding: 8px 16px;
-  border: 1px solid ${props => {
-    switch (props.variant) {
-      case 'delete': return '#dc3545';
-      case 'edit': return '#007bff';
-      default: return '#6c757d';
-    }
-  }};
-  background: ${props => {
-    switch (props.variant) {
-      case 'delete': return '#fff';
-      case 'edit': return '#007bff';
-      default: return '#fff';
-    }
-  }};
-  color: ${props => {
-    switch (props.variant) {
-      case 'delete': return '#dc3545';
-      case 'edit': return '#fff';
-      default: return '#6c757d';
-    }
-  }};
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  margin: 0 4px;
-  transition: all 0.2s;
-
-  &:hover {
-    background: ${props => {
-      switch (props.variant) {
-        case 'delete': return '#dc3545';
-        case 'edit': return '#0056b3';
-        default: return '#6c757d';
-      }
-    }};
-    color: #fff;
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-// Modal Styles
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-`;
-
-const Modal = styled.div`
-  background: #fff;
-  border-radius: 16px;
-  padding: 32px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f0f0f0;
-`;
-
-const ModalTitle = styled.h2`
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: #1a1a1a;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-
-  &:hover {
-    color: #333;
-    background: #f8f9fa;
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-`;
-
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const Label = styled.label`
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
-`;
-
-const Input = styled.input`
-  padding: 14px 16px;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.2s;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-
-  &:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-  }
-
-  &::placeholder {
-    color: #adb5bd;
-  }
-`;
-
-const ScopesContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 8px;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 2px solid #dee2e6;
-`;
-
-const SalesChannelContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 8px;
-  padding: 16px;
-  background: #f1f8ff;
-  border-radius: 8px;
-  border: 2px solid #dee2e6;
-  max-height: 200px;
-  overflow-y: auto;
-`;
-
-const ScopeCheckbox = styled.label<{ selected?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 2px solid ${props => props.selected ? '#007bff' : '#dee2e6'};
-  background: ${props => props.selected ? '#007bff' : '#fff'};
-  color: ${props => props.selected ? '#fff' : '#495057'};
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
-  user-select: none;
-
-  &:hover {
-    border-color: #007bff;
-    background: ${props => props.selected ? '#0056b3' : '#e3f2fd'};
-  }
-
-  input {
-    display: none;
-  }
-`;
-
-const SalesChannelCheckbox = styled.label<{ selected?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 2px solid ${props => props.selected ? '#28a745' : '#dee2e6'};
-  background: ${props => props.selected ? '#28a745' : '#fff'};
-  color: ${props => props.selected ? '#fff' : '#495057'};
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
-  user-select: none;
-  min-width: 120px;
-
-  &:hover {
-    border-color: #28a745;
-    background: ${props => props.selected ? '#218838' : '#e8f5e8'};
-  }
-
-  input {
-    display: none;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 2px solid #f0f0f0;
-`;
-
-const SubmitButton = styled.button`
-  background: #28a745;
-  color: #fff;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #218838;
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const CancelButton = styled.button`
-  background: #6c757d;
-  color: #fff;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #545b62;
-    transform: translateY(-1px);
-  }
-`;
+// Utility UI bits
+const Spinner = ({ size = 40 }: { size?: number }) => (
+  <div
+    className="animate-spin rounded-full border-4 border-muted border-t-primary"
+    style={{ width: size, height: size }}
+  />
+);
 
 // Available webhook scopes
 const WEBHOOK_SCOPES = Object.values(WebhookScope);
@@ -652,187 +217,191 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
     });
   };
 
+  // Beautify webhook scope for display (remove "Store", title-case words)
+  const beautifyScope = (rawScope: string) => {
+    if (!rawScope) return '';
+    const withSpaces = rawScope
+      .replace(/[/_-]+/g, ' ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+    const withoutStore = withSpaces
+      .replace(/\bstore\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return withoutStore
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   if (!token) {
     return (
-      <Container>
-        <EmptyState>
-          <EmptyTitle>Authentication Required</EmptyTitle>
-          <EmptyText>Please authenticate to manage webhooks.</EmptyText>
-        </EmptyState>
-      </Container>
+      <div className="max-w-[1200px] mx-auto p-6 bg-background min-h-[100vh]">
+        <div className="text-center p-20 bg-muted rounded-xl border border-dashed">
+          <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
+          <p className="text-muted-foreground">Please authenticate to manage webhooks.</p>
+        </div>
+      </div>
     );
   }
 
   return (
     <>
-      <Container>
-        <Header>
+      <div className="max-w-[1200px] mx-auto p-6 bg-background min-h-[100vh]">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b">
           <div>
-            <Title>Webhook Management kardeeeş</Title>
-            {storeName && <StoreInfo>Store: {storeName}</StoreInfo>}
+            <h1 className="text-2xl font-bold">Webhook Management App</h1>
+            {storeName && <div className="text-sm text-muted-foreground">Store: {storeName}</div>}
           </div>
-          <AddButton onClick={handleAddWebhook} disabled={isLoading}>
+          <Button onClick={handleAddWebhook} disabled={isLoading} className="gap-2">
             <span>+</span>
             Add New Webhook
-          </AddButton>
-        </Header>
+          </Button>
+        </div>
 
         {isLoading ? (
-          <LoadingContainer>
-            <LoadingSpinner />
-            <LoadingText>Loading webhooks...</LoadingText>
-          </LoadingContainer>
+          <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
+            <Spinner />
+            <div className="text-muted-foreground">Loading webhooks...</div>
+          </div>
         ) : webhooks.length === 0 ? (
-          <EmptyState>
-            <EmptyTitle>No Webhooks Found</EmptyTitle>
-            <EmptyText>Click Add New Webhook to create your first webhook endpoint.</EmptyText>
-          </EmptyState>
+          <div className="text-center p-20 bg-muted rounded-xl border">
+            <h3 className="text-lg font-semibold mb-2">No Webhooks Found</h3>
+            <p className="text-muted-foreground">Click Add New Webhook to create your first webhook endpoint.</p>
+          </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHeaderCell>Endpoint URL</TableHeaderCell>
-                <TableHeaderCell>Scope</TableHeaderCell>
-                <TableHeaderCell>Created</TableHeaderCell>
-                <TableHeaderCell>Actions</TableHeaderCell>
+                <TableHead>Endpoint URL</TableHead>
+                <TableHead>Scope</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <tbody>
+            <TableBody>
               {webhooks.map((webhook) => (
                 <TableRow key={webhook.id}>
                   <TableCell>
-                    <WebhookUrl>{webhook.endpoint}</WebhookUrl>
+                    <div className="font-mono text-sm text-blue-700 break-all max-w-[300px] truncate">{webhook.endpoint}</div>
                   </TableCell>
                   <TableCell>
-                    <ScopeTag>{webhook.scope}</ScopeTag>
+                    <span className="inline-block px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-medium">
+                      {beautifyScope(webhook.scope)}
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <DateText>{formatDate(webhook.createdAt)}</DateText>
+                    <div className="text-sm text-muted-foreground font-mono">{formatDate(webhook.createdAt)}</div>
                   </TableCell>
-                  <TableCell>
-                    <ActionButton
-                      variant="edit"
+                  <TableCell className="space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleEditWebhook(webhook)}
                       disabled={isDeleting === webhook.id}
                     >
                       Edit
-                    </ActionButton>
-                    <ActionButton
-                      variant="delete"
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
                       onClick={() => handleDeleteWebhook(webhook)}
                       disabled={isDeleting === webhook.id}
                     >
                       {isDeleting === webhook.id ? (
-                        <>
-                          <LoadingSpinner style={{ width: '12px', height: '12px' }} />
-                          Deleting...
-                        </>
+                        <span className="inline-flex items-center gap-2"><Spinner size={14} /> Deleting...</span>
                       ) : (
                         'Delete'
                       )}
-                    </ActionButton>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
-            </tbody>
+            </TableBody>
           </Table>
         )}
-      </Container>
+      </div>
 
-      {isModalOpen && (
-        <ModalOverlay onClick={handleCloseModal}>
-          <Modal onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>
-                {editingWebhook ? 'Edit Webhook' : 'Add New Webhook'}
-              </ModalTitle>
-              <CloseButton onClick={handleCloseModal}>
-                ×
-              </CloseButton>
-            </ModalHeader>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingWebhook ? 'Edit Webhook' : 'Add New Webhook'}</DialogTitle>
+          </DialogHeader>
 
-            <Form onSubmit={handleSubmit}>
-              <FormGroup>
-                <Label htmlFor="endpoint">Webhook Endpoint URL</Label>
-                <Input
-                  id="endpoint"
-                  type="url"
-                  value={formData.endpoint}
-                  onChange={(e) => setFormData(prev => ({ ...prev, endpoint: e.target.value }))}
-                  placeholder="https://your-app.com/webhooks/ikas"
-                  required
-                />
-              </FormGroup>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="endpoint">Webhook Endpoint URL</Label>
+              <Input
+                id="endpoint"
+                type="url"
+                value={formData.endpoint}
+                onChange={(e) => setFormData(prev => ({ ...prev, endpoint: e.target.value }))}
+                placeholder="https://your-app.com/webhooks/ikas"
+                required
+              />
+            </div>
 
-              <FormGroup>
-                <Label>Select Webhook Scopes</Label>
-                <ScopesContainer>
-                  {WEBHOOK_SCOPES.map((scope) => (
-                    <ScopeCheckbox
-                      key={scope}
-                      selected={formData.scopes.includes(scope)}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.scopes.includes(scope)}
-                        onChange={() => toggleScope(scope)}
+            <div className="flex flex-col gap-2">
+              <Label>Select Webhook Scopes</Label>
+              <div className="grid grid-cols-2 gap-3 p-4 rounded-md border">
+                {WEBHOOK_SCOPES.map((scope) => {
+                  const checked = formData.scopes.includes(scope);
+                  return (
+                    <label key={scope} className="inline-flex items-center gap-2">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() => toggleScope(scope)}
                       />
-                      {scope.replace('_', ' ').toUpperCase()}
-                    </ScopeCheckbox>
-                  ))}
-                </ScopesContainer>
-              </FormGroup>
+                      <span className="text-sm">{beautifyScope(scope)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
 
-              <FormGroup>
-                <Label>Select Sales Channels (Optional)</Label>
-                {isLoadingSalesChannels ? (
-                  <div style={{ padding: '20px', textAlign: 'center' }}>
-                    <LoadingSpinner style={{ width: '20px', height: '20px' }} />
-                    <div style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>
-                      Loading sales channels...
-                    </div>
+            <div className="flex flex-col gap-2">
+              <Label>Select Sales Channels (Optional)</Label>
+              {isLoadingSalesChannels ? (
+                <div className="p-5 text-center">
+                  <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                    <Spinner size={20} /> Loading sales channels...
                   </div>
-                ) : salesChannels.length === 0 ? (
-                  <div style={{ padding: '20px', textAlign: 'center', background: '#f8f9fa', borderRadius: '8px', border: '2px solid #dee2e6' }}>
-                    <div style={{ fontSize: '14px', color: '#666' }}>
-                      No sales channels found
-                    </div>
-                  </div>
-                ) : (
-                  <SalesChannelContainer>
-                    {salesChannels.map((channel) => (
-                      <SalesChannelCheckbox
-                        key={channel.id}
-                        selected={formData.salesChannelIds?.includes(channel.id) || false}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.salesChannelIds?.includes(channel.id) || false}
-                          onChange={() => toggleSalesChannel(channel.id)}
+                </div>
+              ) : salesChannels.length === 0 ? (
+                <div className="p-5 text-center rounded-md border text-sm text-muted-foreground">
+                  No sales channels found
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-3 p-4 rounded-md border max-h-[200px] overflow-y-auto">
+                  {salesChannels.map((channel) => {
+                    const selected = formData.salesChannelIds?.includes(channel.id) || false;
+                    return (
+                      <label key={channel.id} className="inline-flex items-center gap-2 min-w-[120px]">
+                        <Checkbox
+                          checked={selected}
+                          onCheckedChange={() => toggleSalesChannel(channel.id)}
                         />
-                        {channel.name || `Channel ${channel.id}`}
-                      </SalesChannelCheckbox>
-                    ))}
-                  </SalesChannelContainer>
-                )}
-              </FormGroup>
+                        <span className="text-sm">{channel.name || `Channel ${channel.id}`}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
-              <ButtonGroup>
-                <CancelButton type="button" onClick={handleCloseModal}>
-                  Cancel
-                </CancelButton>
-                <SubmitButton
-                  type="submit"
-                  disabled={isSaving || !formData.endpoint || formData.scopes.length === 0}
-                >
-                  {isSaving && <LoadingSpinner style={{ width: '16px', height: '16px' }} />}
-                  {editingWebhook ? 'Update' : 'Create'} Webhook
-                </SubmitButton>
-              </ButtonGroup>
-            </Form>
-          </Modal>
-        </ModalOverlay>
-      )}
+            <DialogFooter>
+              <Button type="button" variant="secondary" onClick={handleCloseModal}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSaving || !formData.endpoint || formData.scopes.length === 0}
+              >
+                {isSaving && <span className="inline-flex items-center gap-2"><Spinner size={16} /></span>}
+                {editingWebhook ? 'Update' : 'Create'} Webhook
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

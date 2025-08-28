@@ -46,9 +46,5 @@ Thumbs.db
 
 # Data files (JSON storage)
 /data/
-*.json
-!ikas.config.json
-!package.json
-!tsconfig.json
 
 /generated/prisma

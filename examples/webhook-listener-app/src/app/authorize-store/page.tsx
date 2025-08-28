@@ -1,85 +1,9 @@
 'use client';
 
 import React, { useEffect, useCallback, useState } from 'react';
-import styled from 'styled-components';
-
-// Styled-components for layout and UI
-const MainContainer = styled.main`
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 5rem;
-`;
-
-const FormContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 28rem;
-  padding: 0 1rem;
-`;
-
-const Logo = styled.img`
-  max-width: 20rem;
-  margin-bottom: 3rem;
-`;
-
-const StyledForm = styled.form`
-  width: 100%;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  color: var(--gray-900);
-  background: white;
-  transition: var(--transition-normal);
-
-  &:focus {
-    outline: none;
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px var(--primary-100);
-  }
-
-  &::placeholder {
-    color: var(--gray-400);
-  }
-`;
-
-const Button = styled.button`
-  width: 100%;
-  background: var(--primary-600);
-  color: white;
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
-  margin-top: 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition-normal);
-
-  &:hover:not(:disabled) {
-    background: var(--primary-700);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: var(--error-600);
-  text-align: center;
-  margin-top: 0.75rem;
-  font-size: 1rem;
-`;
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 /**
  * AuthorizeStorePage
@@ -114,14 +38,10 @@ const AuthorizeStorePage: React.FC = () => {
   );
 
   return (
-    <MainContainer>
-      <FormContainer>
-        <Logo src="/logo.png" alt="ikas Logo" />
-        {/* 
-          Form submits storeName as a GET param to the OAuth authorize endpoint.
-          Button is disabled if input is empty.
-        */}
-        <StyledForm method="GET" action="/api/oauth/authorize/ikas" autoComplete="off">
+    <main className="min-h-[100vh] flex flex-col items-center justify-center pb-20">
+      <div className="flex flex-col items-center justify-center w-full max-w-[28rem] px-4">
+        <Image src="/logo.png" alt="ikas Logo" className="max-w-[20rem] mb-12" />
+        <form method="GET" action="/api/oauth/authorize/ikas" autoComplete="off" className="w-full">
           <Input
             name="storeName"
             placeholder="Enter your store name"
@@ -133,17 +53,17 @@ const AuthorizeStorePage: React.FC = () => {
             autoCorrect="off"
             autoCapitalize="none"
           />
-          <Button type="submit" disabled={!storeName.trim()}>
+          <Button type="submit" disabled={!storeName.trim()} className="w-full mt-6">
             Add to My Store
           </Button>
           {showError && (
-            <ErrorMessage>
+            <div className="text-red-600 text-center mt-3 text-base">
               An error occurred. Please try again.
-            </ErrorMessage>
+            </div>
           )}
-        </StyledForm>
-      </FormContainer>
-    </MainContainer>
+        </form>
+      </div>
+    </main>
   );
 };
 

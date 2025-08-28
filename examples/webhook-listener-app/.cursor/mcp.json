@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "shadcn-ui": {
+      "command": "npx",
+      "args": [
+        "@jpisnice/shadcn-ui-mcp-server",
+        "--github-api-key",
+        "$GITHUB_TOKEN"
+      ]
+    },
+    "ikas": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://api.myikas.com/api/admin/mcp"
+      ]
+    }
+  }
+}
+
+
