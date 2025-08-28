@@ -5,6 +5,7 @@ import { ListSalesChannelApiResponse } from '../app/api/ikas/list-sales-channel/
 import { ListWebhookApiResponse } from '../app/api/ikas/list-webhook/route';
 import { SaveWebhooksApiRequest } from '../app/api/ikas/save-webhook/route';
 import { ApiResponseType } from '../globals/constants';
+import { ListProductApiResponse } from '@/app/api/ikas/list-product/route';
 
 export async function makePostRequest<T>({ url, data, token }: { url: string; data?: any; token?: string }) {
   return axios.post<ApiResponseType<T>>(url, data, {
@@ -35,5 +36,6 @@ export const ApiRequests = {
     listWebhook: (token: string) => makeGetRequest<ListWebhookApiResponse>({ url: '/api/ikas/list-webhook', token }),
     deleteWebhook: (data: DeleteWebhookApiRequest, token: string) => makePostRequest<any>({ url: '/api/ikas/delete-webhook', data, token }),
     listSalesChannel: (token: string) => makeGetRequest<ListSalesChannelApiResponse>({ url: '/api/ikas/list-sales-channel', token }),
+    listProduct: (token: string) => makeGetRequest<ListProductApiResponse>({ url: '/api/ikas/list-product', token }),
   },
 };

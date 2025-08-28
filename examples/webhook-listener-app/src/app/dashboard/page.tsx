@@ -48,6 +48,6 @@ export default function DashboardPage() {
     initializeDashboard();
   }, [initializeDashboard]);
 
-  // Simply render the WebhookPage component
+  // WebhookPage now includes internal tabs for Webhooks/Products
   return <WebhookPage token={token} storeName={storeName} />;
 }

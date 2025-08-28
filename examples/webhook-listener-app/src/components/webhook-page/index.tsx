@@ -38,6 +38,9 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
   const [editingWebhook, setEditingWebhook] = useState<Webhook | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'webhooks' | 'products'>('webhooks');
+  const [products, setProducts] = useState<Array<{ id: string; name?: string }>>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(false);
 
   // Form state
   const [formData, setFormData] = useState<WebhookInput>({
@@ -54,6 +57,27 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  const loadProducts = useCallback(async () => {
+    if (!token) return;
+    setIsLoadingProducts(true);
+    try {
+      const response = await ApiRequests.ikas.listProduct(token);
+      if (response.data?.data?.items) {
+        setProducts(response.data.data.items);
+      }
+    } catch (error) {
+      console.error('Failed to load products:', error);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (token && activeTab === 'products') {
+      loadProducts();
+    }
+  }, [token, activeTab, loadProducts]);
 
   /**
    * Loads webhooks from the API
@@ -246,18 +270,30 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
   return (
     <>
       <div className="max-w-[1200px] mx-auto p-6 bg-background min-h-[100vh]">
-        <div className="flex items-center justify-between mb-8 pb-4 border-b">
-          <div>
-            <h1 className="text-2xl font-bold">Webhook Management App</h1>
-            {storeName && <div className="text-sm text-muted-foreground">Store: {storeName}</div>}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold">ikas Sample App</h1>
+              {storeName && <div className="text-sm text-muted-foreground">Store: {storeName}</div>}
+            </div>
           </div>
-          <Button onClick={handleAddWebhook} disabled={isLoading} className="gap-2">
-            <span>+</span>
-            Add New Webhook
-          </Button>
+          <div className="inline-flex h-10 items-center rounded-md border p-1 text-sm">
+            <button
+              className={`px-3 py-1.5 rounded ${activeTab === 'webhooks' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+              onClick={() => setActiveTab('webhooks')}
+            >
+              Webhooks
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded ${activeTab === 'products' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+              onClick={() => setActiveTab('products')}
+            >
+              Products
+            </button>
+          </div>
         </div>
 
-        {isLoading ? (
+        {activeTab === 'webhooks' && (isLoading ? (
           <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
             <Spinner />
             <div className="text-muted-foreground">Loading webhooks...</div>
@@ -317,6 +353,48 @@ const WebhookPage: React.FC<WebhookPageProps> = ({ token, storeName }) => {
               ))}
             </TableBody>
           </Table>
+        ))}
+
+        {activeTab === 'webhooks' && (
+          <div className="mt-6">
+            <Button onClick={handleAddWebhook} disabled={isLoading} className="gap-2">
+              <span>+</span>
+              Add New Webhook
+            </Button>
+          </div>
+        )}
+
+        {activeTab === 'products' && (
+          <div>
+            {isLoadingProducts ? (
+              <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
+                <Spinner />
+                <div className="text-muted-foreground">Loading products...</div>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center p-20 bg-muted rounded-xl border">
+                <h3 className="text-lg font-semibold mb-2">No Products Found</h3>
+                <p className="text-muted-foreground">Products will appear here after they are created.</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product ID</TableHead>
+                    <TableHead>Name</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-mono text-sm">{p.id}</TableCell>
+                      <TableCell>{p.name || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         )}
       </div>
 

@@ -13,7 +13,7 @@ import { TokenHelpers } from '@/helpers/token-helpers';
  * - Checking for existing valid tokens in both iFrame and direct access contexts
  * - Managing OAuth authorization redirects for new users
  * - Routing users to appropriate pages based on their authentication status
- * - Handling both internal (iFrame within iKas dashboard) and external (direct browser) access scenarios
+ * - Handling both internal (iFrame within ikas dashboard) and external (direct browser) access scenarios
  * 
  * @returns An object containing the loading state
  */
@@ -27,7 +27,7 @@ export function useBaseHomePage() {
      * Initializes the authentication and authorization flow.
      * 
      * This function orchestrates the entire authentication process:
-     * 1. Closes any existing iKas AppBridge loader
+     * 1. Closes any existing ikas AppBridge loader
      * 2. Attempts to retrieve existing token from iFrame context
      * 3. Routes to dashboard if valid token exists
      * 4. Handles OAuth flow initiation for external access
@@ -35,10 +35,10 @@ export function useBaseHomePage() {
      */
     const initializeAuthFlow = async () => {
       try {
-        // Close any existing loader in the iKas AppBridge to prevent UI conflicts
+        // Close any existing loader in the ikas AppBridge to prevent UI conflicts
         AppBridgeHelper.closeLoader();
 
-        // Attempt to retrieve token from iFrame context (when app runs inside iKas dashboard)
+        // Attempt to retrieve token from iFrame context (when app runs inside ikas dashboard)
         const existingToken = await TokenHelpers.getTokenForIframeApp();
 
         if (existingToken) {

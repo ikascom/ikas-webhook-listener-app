@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 const TOKEN_KEY = 'token';
 
 /**
- * Utility class for managing authentication tokens in iKas applications.
+ * Utility class for managing authentication tokens in ikas applications.
  * 
  * This class provides methods for:
  * - Retrieving tokens from iFrame context using AppBridge
@@ -15,10 +15,10 @@ const TOKEN_KEY = 'token';
  */
 export class TokenHelpers {
   /**
-   * Retrieves an authentication token for applications running within iKas dashboard iFrame.
+   * Retrieves an authentication token for applications running within ikas dashboard iFrame.
    * 
-   * This method handles token retrieval through the iKas AppBridge when the application
-   * is embedded within the iKas dashboard. It implements a caching mechanism using
+   * This method handles token retrieval through the ikas AppBridge when the application
+   * is embedded within the ikas dashboard. It implements a caching mechanism using
    * sessionStorage to avoid unnecessary API calls and provides automatic token refresh
    * when cached tokens expire.
    * 
@@ -29,13 +29,13 @@ export class TokenHelpers {
    * @throws Will log errors to console if AppBridge token retrieval fails
    * 
    * @remarks
-   * - Only works when app is displayed in iFrame within iKas dashboard
+   * - Only works when app is displayed in iFrame within ikas dashboard
    * - Will throw a timeout error if used outside iFrame context
    * - Automatically handles token caching and expiration validation
    * - Uses JWT payload decoding to check token expiration
    */
   static getTokenForIframeApp = async (): Promise<string | null> => {
-    // Only proceed if running inside an iFrame (within iKas dashboard)
+    // Only proceed if running inside an iFrame (within ikas dashboard)
     if (window.self !== window.top) {
       try {
         // Get the authorized app ID to create a unique storage key

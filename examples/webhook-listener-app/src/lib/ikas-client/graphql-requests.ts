@@ -63,3 +63,15 @@ export const DELETE_WEBHOOK = gql`
     deleteWebhook(scopes: $scopes)
   }
 `;
+
+export const LIST_PRODUCT = gql`
+  query ListProduct($pagination: PaginationInput) {
+    listProduct(pagination: $pagination) {
+      data {
+        id
+        name
+      }
+      count
+    }
+  }
+`;
