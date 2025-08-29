@@ -48,3 +48,32 @@ Thumbs.db
 /data/
 
 /generated/prisma
+
+# START Ruler Generated Files
+*.bak
+.aider.conf.yml
+.augment
+.clinerules
+.crush.json
+.codex
+.gemini
+.github
+.goosehints
+.idx
+.junie
+.kilocode
+.kiro
+.mcp.json
+.openhands
+.qwen
+.roo
+.vscode
+.windsurf
+.zed
+AGENTS.md
+CLAUDE.md
+CRUSH.md
+WARP.md
+config.toml
+opencode.json
+# END Ruler Generated Files

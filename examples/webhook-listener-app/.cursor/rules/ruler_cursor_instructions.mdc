@@ -1,6 +1,8 @@
 ---
 alwaysApply: true
 ---
+<!-- Source: .ruler/base-rules.md -->
+
 Project rules for Ikas Webhook Listener App (Next.js):
 
 Core principles:
@@ -14,7 +16,7 @@ Stack overview:
 - Session via `iron-session`.
 
 MCP usage:
-- When generating new UI components, use the "shadcn-ui" MCP to fetch component boilerplates and demos. Align with existing `src/components/ui/*` structure.
+- When generating new UI components, use the "shadcn" MCP to fetch component boilerplates and demos. Align with existing `src/components/ui/*` structure.
 - When generating or exploring ikas GraphQL operations, use the "ikas" MCP list and introspect tools to discover available queries/mutations and their shapes before implementation.
   - For ikas GraphQL specifically, follow this order before any implementation:
     1) Use the "ikas" MCP list tool to find the correct query/mutation name.

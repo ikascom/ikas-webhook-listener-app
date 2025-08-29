@@ -83,6 +83,21 @@ webhook-listener-app/
    pnpm dev
    ```
 
+## 🗃️ Database (Prisma)
+
+- For first-time setup, run:
+
+  ```bash
+  pnpm prisma:init
+  ```
+
+  If you generated this project via the "ikas" CLI command, you typically don't need to run the init step.
+
+- To manage the database:
+  - `pnpm prisma:migrate` to create/apply migrations
+  - `pnpm prisma:generate` to regenerate Prisma client
+  - `pnpm prisma:studio` to open Prisma Studio
+
 ## 🔧 Usage
 
 ### OAuth Authorization
@@ -144,6 +159,25 @@ The app provides these API endpoints:
 
 - Use the "shadcn-ui" MCP to scaffold UI components and view usage demos when adding new UI. Place components under `src/components/ui/*` following existing patterns.
 - Use the "ikas" MCP list and introspect tools to discover available ikas GraphQL operations and shapes before implementing new requests.
+
+## 🤖 AI agent rules (Ruler)
+
+- We use `@intellectronica/ruler` to manage all AI-powered development agent configurations from a single `.ruler` configuration.
+- Whenever you change any `.ruler/*` configuration, run:
+
+  ```bash
+  pnpm apply:ai-rules
+  ```
+
+  This generates or updates agent-specific instruction files. By default, we generate the Cursor agent.
+
+- You can target other agents by providing a comma-separated list (agentsmd, amp, copilot, claude, codex, cursor, windsurf, cline, aider, firebase, gemini-cli, junie, augmentcode, kilocode, warp, roo). Example:
+
+  ```bash
+  npx @intellectronica/ruler apply --agents cursor,claude,copilot
+  ```
+
+- For more information, see the Ruler repository: [intellectronica/ruler](https://github.com/intellectronica/ruler)
 
 ### Dashboard
 

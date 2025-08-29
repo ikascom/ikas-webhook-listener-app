@@ -12,7 +12,8 @@
     "prisma:init": "prisma generate && prisma db push --accept-data-loss",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "apply:ai-rules": "npx @intellectronica/ruler apply --agents cursor"
   },
   "packageManager": "pnpm@10.4.1",
   "dependencies": {
