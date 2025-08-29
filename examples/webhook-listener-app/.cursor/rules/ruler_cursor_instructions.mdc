@@ -36,11 +36,11 @@ alwaysApply: true
 - Before adding a new operation, first run the ikas MCP list tool, then introspect to confirm details.
 
 ## Adding New API Requests (Procedure)
-0) Discover operation via MCP: run ikas list to locate the operation, then ikas introspect to confirm its schema.
-1) Add your GraphQL query/mutation to `src/lib/ikas-client/graphql-requests.ts` using the `gql` tag.
-2) Run `pnpm codegen` to generate types and update the generated client.
-3) Use `getIkas` to create the ikas client inside API routes or server actions.
-4) For a query, call `ikasClient.queries.<YourQuery>()`; for a mutation, call `ikasClient.mutations.<YourMutation>(variables)`.
+1) Discover operation via MCP: run ikas list to locate the operation, then ikas introspect to confirm its schema.
+2) Add your GraphQL query/mutation to `src/lib/ikas-client/graphql-requests.ts` using the `gql` tag.
+3) Run `pnpm codegen` to generate types and update the generated client.
+4) Use `getIkas` to create the ikas client inside API routes or server actions.
+5) For a query, call `ikasClient.queries.<YourQuery>()`; for a mutation, call `ikasClient.mutations.<YourMutation>(variables)`.
 
 ## Project Conventions
 - API routes under `src/app/api/*` must validate session and fetch the token via `getUserFromRequest` and `AuthTokenManager`.

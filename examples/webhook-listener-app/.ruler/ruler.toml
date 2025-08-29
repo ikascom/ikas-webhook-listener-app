@@ -45,8 +45,7 @@ enabled = false
 
 [mcp_servers.shadcn]
 command = "npx"
-args = ["@jpisnice/shadcn-ui-mcp-server", "--github-api-key", "$GITHUB_TOKEN"]
-env = { GITHUB_TOKEN = "replace_me" }
+args = ["shadcn@latest", "mcp"]
 
 [mcp_servers.ikas]
 url = "https://api.myikas.com/api/v2/admin/mcp"

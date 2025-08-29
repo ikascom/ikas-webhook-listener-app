@@ -7,13 +7,9 @@
     "shadcn": {
       "command": "npx",
       "args": [
-        "@jpisnice/shadcn-ui-mcp-server",
-        "--github-api-key",
-        "$GITHUB_TOKEN"
+        "shadcn@latest",
+        "mcp"
       ],
-      "env": {
-        "GITHUB_TOKEN": "replace_me"
-      },
       "type": "stdio"
     }
   }
