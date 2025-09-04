@@ -49,6 +49,8 @@ Thumbs.db
 
 /generated/prisma
 
+.ikas
+
 # START Ruler Generated Files
 *.bak
 .aider.conf.yml
@@ -70,7 +72,6 @@ Thumbs.db
 .vscode
 .windsurf
 .zed
-AGENTS.md
 CLAUDE.md
 CRUSH.md
 WARP.md

@@ -13,7 +13,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "apply:ai-rules": "npx @intellectronica/ruler apply --agents cursor"
+    "apply:ai-rules": "npx @intellectronica/ruler apply"
   },
   "packageManager": "pnpm@10.4.1",
   "dependencies": {
